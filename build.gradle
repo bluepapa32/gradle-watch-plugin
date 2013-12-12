@@ -24,3 +24,10 @@ artifacts {
     archives sourcesJar
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(mavenRepository))
+        }
+    }
+}
