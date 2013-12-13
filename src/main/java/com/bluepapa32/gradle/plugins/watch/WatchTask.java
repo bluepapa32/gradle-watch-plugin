@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -30,6 +31,11 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskAction;
 
 public class WatchTask extends DefaultTask {
+
+    @SuppressWarnings("rawtypes")
+    private static final Kind[] EVENT_KIND = {
+        ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE
+    };
 
     private Collection<WatchTarget> targets;
 
@@ -55,13 +61,13 @@ public class WatchTask extends DefaultTask {
                     Path path = file.toPath();
 
                     if (!file.isDirectory()) {
-                        path.getParent().register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+                        path.getParent().register(service, EVENT_KIND);
 
                     } else {
                         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                             throws IOException {
-                                dir.register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+                                dir.register(service, EVENT_KIND);
                                 return FileVisitResult.CONTINUE;
                             }
                         });
@@ -160,4 +166,3 @@ public class WatchTask extends DefaultTask {
         return false;
     }
 }
-
