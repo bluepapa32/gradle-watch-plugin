@@ -12,7 +12,7 @@ class WatchPlugin implements Plugin<Project> {
         }
 
         project.task('watchRun') << {
-            println 'Successfully started watcher.'
+            println 'Successfully started.'
         }
 
         project.task('watch', type: WatchTask) {
