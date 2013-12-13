@@ -52,7 +52,7 @@ public class WatchTask extends DefaultTask {
     @TaskAction
     public void watch() throws IOException {
 
-        try (WatchService watch = FileSystems.getDefault().newWatchService()) {
+        try (WatchService service = FileSystems.getDefault().newWatchService()) {
 
             for (WatchTarget target : targets) {
 
@@ -61,12 +61,12 @@ public class WatchTask extends DefaultTask {
                     Path path = file.toPath();
 
                     if (!file.isDirectory()) {
-                        path.getParent().register(watch, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+                        path.getParent().register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
 
                     } else {
                         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                                dir.register(watch, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+                                dir.register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
                                 return FileVisitResult.CONTINUE;
                             }
                         });
@@ -91,7 +91,7 @@ public class WatchTask extends DefaultTask {
                     WatchKey key;
 
                     try {
-                        key = watch.take();
+                        key = service.take();
                     } catch (InterruptedException e) {
                         return;
                     }
