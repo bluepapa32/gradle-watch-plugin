@@ -15,6 +15,8 @@ class WatchPlugin implements Plugin<Project> {
             println 'Successfully started watcher.'
         }
 
-        project.task('watch', type: WatchTask)
+        project.task('watch', type: WatchTask) {
+            description = 'Run predefined tasks whenever watched files are added, changed or deleted.'
+        }
     }
 }
