@@ -1,6 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
 
 group            = 'com.bluepapa32.gradle.plugins'
 archivesBaseName = 'gradle-watch-plugin'
@@ -22,6 +23,10 @@ task sourcesJar(type: Jar) {
 
 artifacts {
     archives sourcesJar
+}
+
+checkstyle {
+    ignoreFailures = true
 }
 
 uploadArchives {
