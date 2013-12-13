@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskAction;
 
@@ -143,7 +145,12 @@ public class WatchTask extends DefaultTask {
 
     private boolean isTarget(WatchTarget target, Path path) {
 
-        for (File file : target.getFiles()) {
+        FileCollection files = target.getFiles();
+        if (files instanceof FileTree) {
+            return files.contains(path.toFile());
+        }
+
+        for (File file : files) {
             if (path.startsWith(file.toPath())) {
                 return true;
             }
