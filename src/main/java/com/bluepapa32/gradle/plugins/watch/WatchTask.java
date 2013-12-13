@@ -59,7 +59,8 @@ public class WatchTask extends DefaultTask {
 
                     } else {
                         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                            throws IOException {
                                 dir.register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
                                 return FileVisitResult.CONTINUE;
                             }
