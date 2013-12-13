@@ -32,13 +32,13 @@ public class WatchTask extends DefaultTask {
     private Collection<WatchTarget> targets;
 
     public WatchTask() throws IOException {
-    	super();
+        super();
 
         ExtensionContainer ext = getProject().getExtensions();
 
         @SuppressWarnings("unchecked")
-		Collection<WatchTarget> targets = (Collection<WatchTarget>) ext.getByName("watch");
-		this.targets = targets;
+        Collection<WatchTarget> targets = (Collection<WatchTarget>) ext.getByName("watch");
+        this.targets = targets;
     }
 
     @TaskAction
