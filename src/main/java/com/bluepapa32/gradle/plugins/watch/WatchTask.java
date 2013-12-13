@@ -1,5 +1,10 @@
 package com.bluepapa32.gradle.plugins.watch;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -21,19 +26,6 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.tooling.BuildException;
-import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.UnsupportedVersionException;
-import org.gradle.tooling.exceptions.UnsupportedBuildArgumentException;
-import org.gradle.tooling.exceptions.UnsupportedOperationConfigurationException;
-
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 public class WatchTask extends DefaultTask {
 
@@ -74,17 +66,10 @@ public class WatchTask extends DefaultTask {
                 }
             }
 
-            ProjectConnection connection = GradleConnector.newConnector()
-                    .useInstallation(getProject().getGradle().getGradleHomeDir())
-                    .forProjectDirectory(getProject().getProjectDir())
-                    .connect();
-
             List<WatchTarget> actualTargets = new ArrayList<>();
             Set<Path> changedPaths = new LinkedHashSet<>();
 
-            try {
-
-        	    connection.newBuild().forTasks("watchRun").run();
+            try (WatchTargetTaskRunner runner = new WatchTargetTaskRunner(getProject())) {
 
                 while (true) {
 
@@ -121,45 +106,14 @@ public class WatchTask extends DefaultTask {
                     }
                     changedPaths.clear();
 
-                    if (!actualTargets.isEmpty()) {
+                    runner.run(actualTargets);
 
-                	    BuildLauncher launcher = connection.newBuild();
-
-                        for (WatchTarget target : actualTargets) {
-                    	    launcher.forTasks(target.getTasks());
-                        }
-
-                        long timestamp = System.currentTimeMillis();
-
-                        try {
-                            launcher.run();
-                        } catch (UnsupportedOperationConfigurationException ex) {
-                            ex.printStackTrace();
-                        } catch (UnsupportedBuildArgumentException ex) {
-                            ex.printStackTrace();
-                        } catch (BuildException ex) {
-                            ex.printStackTrace();
-                        } catch (UnsupportedVersionException ex) {
-                            ex.printStackTrace();
-                        } catch (GradleConnectionException ex) {
-                            ex.printStackTrace();
-                        } catch (IllegalStateException ex) {
-                            ex.printStackTrace();
-                        }
-
-                        for (WatchTarget target : actualTargets) {
-                    	    target.setExecutedAt(timestamp);
-                        }
-                    }
                     actualTargets.clear();
 
                     if (!key.reset()) {
                         break;
                     }
                 }
-
-            } finally {
-                connection.close();
             }
         }
     }
