@@ -1,7 +1,9 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
+
 apply plugin: 'checkstyle'
+apply plugin: 'codenarc'
 
 group            = 'com.bluepapa32.gradle.plugins'
 archivesBaseName = 'gradle-watch-plugin'
@@ -27,6 +29,11 @@ artifacts {
 
 checkstyle {
     ignoreFailures = true
+}
+
+codenarc {
+    ignoreFailures = true
+    reportFormat = 'xml'
 }
 
 uploadArchives {
