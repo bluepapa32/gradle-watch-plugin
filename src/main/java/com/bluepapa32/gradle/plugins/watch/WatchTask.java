@@ -39,7 +39,7 @@ public class WatchTask extends DefaultTask {
 
     private Collection<WatchTarget> targets;
 
-    public WatchTask() throws IOException {
+    public WatchTask() {
         super();
 
         ExtensionContainer ext = getProject().getExtensions();
