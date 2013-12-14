@@ -11,6 +11,12 @@ class WatchPlugin implements Plugin<Project> {
             project.extensions.create(name, WatchTarget, name)
         }
 
+        project.tasks.addRule("Pattern: watch.<Name>: Run watch task specified by name.") { taskName ->
+            if (project.watch.find { "watch${it.name[0].toUpperCase()}${it.name[1..-1]}" == taskName }) {
+                project.task(taskName, type: WatchTask)
+            }
+        }
+
         project.task('watchRun') << {
             println 'Successfully started.'
         }

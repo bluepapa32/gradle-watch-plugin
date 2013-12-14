@@ -4,6 +4,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static java.util.Collections.singleton;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,8 @@ import org.gradle.api.tasks.TaskAction;
 
 public class WatchTask extends DefaultTask {
 
+    private static final String TASK_NAME = "watch";
+
     @SuppressWarnings("rawtypes")
     private static final Kind[] EVENT_KIND = {
         ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE
@@ -45,8 +48,21 @@ public class WatchTask extends DefaultTask {
         ExtensionContainer ext = getProject().getExtensions();
 
         @SuppressWarnings("unchecked")
-        Collection<WatchTarget> targets = (Collection<WatchTarget>) ext.getByName("watch");
-        this.targets = targets;
+        Collection<WatchTarget> targets = (Collection<WatchTarget>) ext.getByName(TASK_NAME);
+        if (!getName().startsWith(TASK_NAME)) {
+            this.targets = targets;
+        } else {
+            String name = getName().substring(TASK_NAME.length());
+            if (!name.isEmpty()) {
+                name = name.substring(0, 1).toLowerCase() + name.substring(1, name.length());
+                for (WatchTarget target : targets) {
+                    if (target.getName().equals(name)) {
+                        this.targets = singleton(target);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @TaskAction
