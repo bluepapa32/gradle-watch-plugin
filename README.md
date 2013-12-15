@@ -4,6 +4,13 @@ Gradle Watch Plugin 0.1.0
 Run predefined tasks whenever watched file patterns are added, changed or deleted.
 
 
+Requirements
+------------
+
+- Oracle JDK7+
+- Gradle 1.9+
+
+
 Usage
 -----
 
