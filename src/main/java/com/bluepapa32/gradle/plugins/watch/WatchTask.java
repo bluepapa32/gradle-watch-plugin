@@ -125,7 +125,7 @@ public class WatchTask extends DefaultTask {
 
                     for (Path path : changedPaths) {
                         if (addWatchTarget(actualTargets, path)) {
-                            System.out.printf("%2$tF %2$tT File %s changed.%n",
+                            getLogger().lifecycle("%2$tF %2$tT File %s changed.%n",
                                 path, new Date(path.toFile().lastModified()));
                         }
                     }

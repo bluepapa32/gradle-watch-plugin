@@ -18,7 +18,7 @@ class WatchPlugin implements Plugin<Project> {
         }
 
         project.task('watchRun') << {
-            println 'Successfully started.'
+            logger.lifecycle 'Successfully started.'
         }
 
         project.task('watch', type: WatchTask) {
