@@ -39,6 +39,7 @@ Table 1. Watch plugin - tasks
 |Task name|Depends on|Type     |Description                                                                       |
 |:-------:|:--------:|:-------:|----------------------------------------------------------------------------------|
 |watch    |-         |WatchTask|Run predefined tasks whenever watched file patterns are added, changed or deleted.|
+|watch<i>Name</i>    |-         |WatchTask||
 
 
 Configuration
