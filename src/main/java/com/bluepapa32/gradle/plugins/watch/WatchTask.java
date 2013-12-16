@@ -110,8 +110,10 @@ public class WatchTask extends DefaultTask {
                     for (Path path : changedPaths) {
                         if (addWatchTarget(actualTargets, path)) {
                             getLogger().lifecycle("");
-                            getLogger().lifecycle(format("\033[36m%s\033[39m", new Date(path.toFile().lastModified())));
-                            getLogger().lifecycle(format("\033[32m>>\033[39m File \"%s\" changed.%n", projectPath.relativize(path)));
+                            getLogger().lifecycle(format("\033[36m%s\033[39m",
+                                                         new Date(path.toFile().lastModified())));
+                            getLogger().lifecycle(format("\033[32m>>\033[39m File \"%s\" changed.%n",
+                                                         projectPath.relativize(path)));
                         }
                     }
                     changedPaths.clear();
