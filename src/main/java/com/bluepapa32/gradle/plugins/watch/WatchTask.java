@@ -5,7 +5,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import static java.util.Collections.singleton;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +28,9 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskAction;
 
 public class WatchTask extends DefaultTask {
-
-    private static final String TASK_NAME = "watch";
 
     @SuppressWarnings("rawtypes")
     private static final Kind[] EVENT_KIND = {
@@ -43,31 +39,16 @@ public class WatchTask extends DefaultTask {
 
     private Collection<WatchTarget> targets;
 
-    public WatchTask() {
-        super();
-
-        ExtensionContainer ext = getProject().getExtensions();
-
-        @SuppressWarnings("unchecked")
-        Collection<WatchTarget> targets = (Collection<WatchTarget>) ext.getByName(TASK_NAME);
-        if (!getName().startsWith(TASK_NAME)) {
-            this.targets = targets;
-        } else {
-            String name = getName().substring(TASK_NAME.length());
-            if (!name.isEmpty()) {
-                name = name.substring(0, 1).toLowerCase() + name.substring(1, name.length());
-                for (WatchTarget target : targets) {
-                    if (target.getName().equals(name)) {
-                        this.targets = singleton(target);
-                        break;
-                    }
-                }
-            }
-        }
+    public void watch(Collection<WatchTarget> targets) {
+        this.targets = targets;
     }
 
     @TaskAction
     public void watch() throws IOException {
+
+        if (targets == null || targets.isEmpty()) {
+            return;
+        }
 
         try (WatchService service = FileSystems.getDefault().newWatchService()) {
 

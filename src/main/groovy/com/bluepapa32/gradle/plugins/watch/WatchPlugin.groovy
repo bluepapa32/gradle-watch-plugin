@@ -12,15 +12,29 @@ class WatchPlugin implements Plugin<Project> {
         }
 
         project.tasks.addRule("Pattern: watch.<Name>: Run watch task specified by name.") { taskName ->
+
             if (taskName == 'watchRun') {
                 project.task('watchRun') << { logger.lifecycle 'Successfully started.' }
-            } else if (project.watch.find { "watch${it.name[0].toUpperCase()}${it.name[1..-1]}" == taskName }) {
-                project.task(taskName, type: WatchTask)
+                return;
+            }
+
+            if (!taskName.startsWith('watch')) {
+                return;
+            }
+
+            def targets = project.watch.findAll {
+                "watch${it.name[0].toUpperCase()}${it.name[1..-1]}" == taskName
+            }
+
+            if (targets) {
+                project.task(taskName, type: WatchTask) {
+                    watch targets
+                }
             }
         }
 
-        project.task('watch', type: WatchTask) {
-            description = 'Runs predefined tasks whenever watched files are added, changed or deleted.'
+        project.task('watch', type: WatchTask, description: 'Runs predefined tasks whenever watched files are added, changed or deleted.') {
+            watch project.watch
         }
     }
 }
