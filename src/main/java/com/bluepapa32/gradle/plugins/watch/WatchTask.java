@@ -1,5 +1,6 @@
 package com.bluepapa32.gradle.plugins.watch;
 
+import static java.lang.String.format;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
@@ -125,8 +126,8 @@ public class WatchTask extends DefaultTask {
 
                     for (Path path : changedPaths) {
                         if (addWatchTarget(actualTargets, path)) {
-                            getLogger().lifecycle("%2$tF %2$tT File %s changed.%n",
-                                path, new Date(path.toFile().lastModified()));
+                            getLogger().lifecycle(format("%2$tF %2$tT File %s changed.%n",
+                                path, new Date(path.toFile().lastModified())));
                         }
                     }
                     changedPaths.clear();
