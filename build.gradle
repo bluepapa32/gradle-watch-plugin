@@ -36,10 +36,12 @@ codenarc {
     reportFormat = 'xml'
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(mavenRepository))
+if (hasProperty('mavenRepository')) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: uri(mavenRepository))
+            }
         }
     }
 }
