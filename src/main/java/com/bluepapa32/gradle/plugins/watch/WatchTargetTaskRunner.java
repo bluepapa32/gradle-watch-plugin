@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 import org.gradle.api.Project;
+import org.gradle.api.logging.LogLevel;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
@@ -21,11 +22,15 @@ public class WatchTargetTaskRunner implements AutoCloseable {
     public WatchTargetTaskRunner(Project project) {
 
         final PrintStream out = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            public void write(int b)  { }
-            public void write(byte[] b)  { }
-            public void write(byte[] b, int off, int len) { }
-        }));
+
+        LogLevel level = project.getGradle().getStartParameter().getLogLevel();
+        if (level.compareTo(LogLevel.INFO) < 0) {
+                System.setOut(new PrintStream(new OutputStream() {
+                public void write(int b)  { }
+                public void write(byte[] b)  { }
+                public void write(byte[] b, int off, int len) { }
+            }));
+        }
 
         out.print("Starting");
         out.flush();
@@ -38,6 +43,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
         connection
             .newBuild()
             .forTasks("watchRun")
+            .withArguments("-q")
             .addProgressListener(new ProgressListener() {
                 public void statusChanged(ProgressEvent event) {
                     out.print("..");
