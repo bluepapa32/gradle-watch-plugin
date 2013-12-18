@@ -13,11 +13,6 @@ class WatchPlugin implements Plugin<Project> {
 
         project.tasks.addRule("Pattern: watch<Name>: Watch the only target specified by name.") { taskName ->
 
-            if (taskName == 'watchRun') {
-                project.task('watchRun') << { logger.lifecycle 'Successfully started.' }
-                return;
-            }
-
             if (!taskName.startsWith('watch')) {
                 return;
             }

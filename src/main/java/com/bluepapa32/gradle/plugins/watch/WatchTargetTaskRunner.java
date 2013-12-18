@@ -42,7 +42,6 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         connection
             .newBuild()
-            .forTasks("watchRun")
             .withArguments("-q")
             .addProgressListener(new ProgressListener() {
                 public void statusChanged(ProgressEvent event) {
