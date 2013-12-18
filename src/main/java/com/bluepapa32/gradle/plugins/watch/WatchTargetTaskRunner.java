@@ -23,7 +23,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
     public void run(List<WatchTarget> targets) {
 
-        if (targets.isEmpty()) {
+        if (targets == null || targets.isEmpty()) {
             return;
         }
 
