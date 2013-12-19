@@ -1,6 +1,5 @@
 package com.bluepapa32.gradle.plugins.watch;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
@@ -27,11 +26,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         LogLevel logLevel = project.getGradle().getStartParameter().getLogLevel();
         if (INFO.compareTo(logLevel) < 0) {
-            System.setOut(new PrintStream(new OutputStream() {
-                public void write(int b) { }
-                public void write(byte[] b) { }
-                public void write(byte[] b, int off, int len) { }
-            }));
+            System.setOut(new DevNullPrintStream());
         }
 
         out.print("Starting");
