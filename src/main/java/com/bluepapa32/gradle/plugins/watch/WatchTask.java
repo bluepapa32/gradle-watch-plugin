@@ -1,5 +1,6 @@
 package com.bluepapa32.gradle.plugins.watch;
 
+import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
 import static java.lang.String.format;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -61,13 +62,13 @@ public class WatchTask extends DefaultTask {
                     Path path = file.toPath();
 
                     if (!file.isDirectory()) {
-                        path.getParent().register(service, EVENT_KIND);
+                        path.getParent().register(service, EVENT_KIND, HIGH);
 
                     } else {
                         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                             throws IOException {
-                                dir.register(service, EVENT_KIND);
+                                dir.register(service, EVENT_KIND, HIGH);
                                 return FileVisitResult.CONTINUE;
                             }
                         });
