@@ -1,4 +1,5 @@
 language: java
 jdk:
   - oraclejdk7
-script: ./gradlew
+install: ./gradlew clean assemble
+script: ./gradlew build
