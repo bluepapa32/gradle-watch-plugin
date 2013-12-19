@@ -1,12 +1,5 @@
 package com.bluepapa32.gradle.plugins.watch;
 
-import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
-import static java.lang.String.format;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -30,6 +23,13 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.TaskAction;
+
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+
+import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
 
 public class WatchTask extends DefaultTask {
 
@@ -111,10 +111,16 @@ public class WatchTask extends DefaultTask {
                     for (Path path : changedPaths) {
                         if (addWatchTarget(actualTargets, path)) {
                             getLogger().lifecycle("");
-                            getLogger().lifecycle(format("\033[36m%s\033[39m",
-                                                         new Date(path.toFile().lastModified())));
-                            getLogger().lifecycle(format("\033[32m>>\033[39m File \"%s\" changed.%n",
-                                                         projectPath.relativize(path)));
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
+                            getLogger().lifecycle(" \033[36m{}\033[39m",
+                                                         new Date(path.toFile().lastModified()));
+                            getLogger().lifecycle(" File \"{}\" changed.",
+                                                         projectPath.relativize(path));
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
                         }
                     }
                     changedPaths.clear();
