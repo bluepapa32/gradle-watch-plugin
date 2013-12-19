@@ -15,6 +15,8 @@ import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 
+import static org.gradle.api.logging.LogLevel.INFO;
+
 public class WatchTargetTaskRunner implements AutoCloseable {
 
     private ProjectConnection connection;
@@ -23,8 +25,8 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         final PrintStream out = System.out;
 
-        LogLevel level = project.getGradle().getStartParameter().getLogLevel();
-        if (level.compareTo(LogLevel.INFO) < 0) {
+        LogLevel logLevel = project.getGradle().getStartParameter().getLogLevel();
+        if (INFO.compareTo(logLevel) < 0) {
             System.setOut(new PrintStream(new OutputStream() {
                 public void write(int b) { }
                 public void write(byte[] b) { }
