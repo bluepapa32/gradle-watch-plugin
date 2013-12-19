@@ -40,6 +40,10 @@ public class WatchTask extends DefaultTask {
 
     private Collection<WatchTarget> targets;
 
+    Collection<WatchTarget> getTargets() {
+        return targets;
+    }
+
     public void watch(Collection<WatchTarget> targets) {
         this.targets = targets;
     }
