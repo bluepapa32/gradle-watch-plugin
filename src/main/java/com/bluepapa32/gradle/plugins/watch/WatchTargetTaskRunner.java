@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.LogLevel;
-import org.gradle.tooling.BuildException;
+import org.gradle.api.plugins.announce.AnnouncePluginExtension;
+import org.gradle.api.plugins.announce.BuildAnnouncementsPlugin;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
@@ -20,7 +21,13 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
     private ProjectConnection connection;
 
+    private AnnouncePluginExtension announce;
+
     public WatchTargetTaskRunner(Project project) {
+
+        if (!project.getPlugins().hasPlugin(BuildAnnouncementsPlugin.class)) {
+            announce = project.getExtensions().findByType(AnnouncePluginExtension.class);
+        }
 
         final PrintStream out = System.out;
 
@@ -70,13 +77,30 @@ public class WatchTargetTaskRunner implements AutoCloseable {
             launcher.forTasks(target.getTasks());
         }
 
+        final int[] taskNum = new int[1];
+
+        launcher.addProgressListener(new ProgressListener() {
+            public void statusChanged(ProgressEvent event) {
+                if ("Execute tasks".equals(event.getDescription())) {
+                    taskNum[0]++;
+                }
+            }
+        });
+
         long timestamp = System.currentTimeMillis();
 
-        try {
-            launcher.run();
-        } catch (BuildException ignore) {
-            // ignore...
-        }
+        launcher.run(new ResultHandler<Void>() {
+            public void onComplete(Void result) {
+                if (announce != null) {
+                    announce.getLocal().send("Build success", (taskNum[0] - 1) + " tasks executed");
+                }
+            }
+            public void onFailure(GradleConnectionException failure) {
+                if (announce != null) {
+                    announce.getLocal().send("Build failure", failure.getCause().getMessage());
+                }
+            }
+        });
 
         for (WatchTarget target : targets) {
             target.setExecutedAt(timestamp);
