@@ -18,6 +18,7 @@ repositories {
 dependencies {
     compile gradleApi()
     compile localGroovy()
+    testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
 }
 
 task sourcesJar(type: Jar) {
