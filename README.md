@@ -1,4 +1,4 @@
-Gradle Watch Plugin 0.1.0
+Gradle Watch Plugin 0.1.0 [![Build Status](https://travis-ci.org/bluepapa32/gradle-watch-plugin.png?branch=master)](https://travis-ci.org/bluepapa32/gradle-watch-plugin)
 =========================
 
 Run predefined tasks whenever watched file patterns are added, changed or deleted.
