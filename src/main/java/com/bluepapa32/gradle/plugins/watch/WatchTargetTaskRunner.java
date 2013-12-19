@@ -25,9 +25,9 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         LogLevel level = project.getGradle().getStartParameter().getLogLevel();
         if (level.compareTo(LogLevel.INFO) < 0) {
-                System.setOut(new PrintStream(new OutputStream() {
-                public void write(int b)  { }
-                public void write(byte[] b)  { }
+            System.setOut(new PrintStream(new OutputStream() {
+                public void write(int b) { }
+                public void write(byte[] b) { }
                 public void write(byte[] b, int off, int len) { }
             }));
         }
