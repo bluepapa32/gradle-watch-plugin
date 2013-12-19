@@ -58,8 +58,6 @@ public class WatchTargetTaskRunner implements AutoCloseable {
                     System.setOut(out);
                     out.println(" \033[32mOK\033[39m");
                 }
-
-                @Override
                 public void onFailure(GradleConnectionException failure) {
                 }
             });
