@@ -11,7 +11,7 @@ class WatchPlugin implements Plugin<Project> {
             project.extensions.create(name, WatchTarget, name)
         }
 
-        project.tasks.addRule("Pattern: watch<Name>: Watch the only target specified by name.") { taskName ->
+        project.tasks.addRule("Pattern: watch<Name>: Watch the only target that is specified by name.") { taskName ->
 
             if (!taskName.startsWith('watch')) {
                 return;
