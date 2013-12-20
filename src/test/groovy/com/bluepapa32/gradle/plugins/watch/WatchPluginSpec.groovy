@@ -1,7 +1,6 @@
 package com.bluepapa32.gradle.plugins.watch
 
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Rule
 import spock.lang.Specification
 
 class WatchPluginSpec extends Specification {
