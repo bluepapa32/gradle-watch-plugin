@@ -30,13 +30,8 @@ artifacts {
     archives sourcesJar
 }
 
-checkstyle {
-    ignoreFailures = true
-}
-
 codenarc {
-    ignoreFailures = true
-    reportFormat = 'xml'
+    sourceSets = [ sourceSets.main ]
 }
 
 if (hasProperty('mavenRepository')) {
