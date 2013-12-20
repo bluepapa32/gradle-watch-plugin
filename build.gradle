@@ -30,6 +30,10 @@ artifacts {
     archives sourcesJar
 }
 
+test {
+    maxParallelForks = 3
+}
+
 codenarc {
     sourceSets = [ sourceSets.main ]
 }
