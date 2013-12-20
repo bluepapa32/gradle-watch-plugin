@@ -22,8 +22,12 @@ class WatchPluginSpec extends Specification {
         when:
         watch {
             main {
+                files fileTree(dir: '/src/main/java', include: '**.java')
+                tasks 'foo', 'bar'
             }
             test {
+                files fileTree(dir: '/src/test/java', include: '**.java')
+                tasks 'hoge', 'boo'
             }
         }
 
@@ -33,14 +37,18 @@ class WatchPluginSpec extends Specification {
 
         then:
         tasks['watchMain'] instanceof WatchTask
-        tasks['watchMain'].targets.size() == 1
         tasks['watchMain'].targets*.name == ['main']
 
         then:
         tasks['watchTest'] instanceof WatchTask
-        tasks['watchTest'].targets.size() == 1
         tasks['watchTest'].targets*.name == ['test']
+
+        then:
+        tasks.findByPath('watchmain') == null
+        tasks.findByPath('watchtest') == null
+        tasks.findByPath('watchHoge') == null
     }
+
 
 //  ----------------------------------------------------------------------------
     def methodMissing(String name, args) {
