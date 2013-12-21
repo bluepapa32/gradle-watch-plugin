@@ -1,5 +1,8 @@
 language: java
 jdk:
   - oraclejdk7
-install:
-  - ./gradlew --parallel clean build
+install: true
+script:
+  - ./gradlew build 
+after_script:
+  - ./gradlew --stop
