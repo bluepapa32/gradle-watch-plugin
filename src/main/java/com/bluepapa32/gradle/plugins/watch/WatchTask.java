@@ -1,17 +1,12 @@
 package com.bluepapa32.gradle.plugins.watch;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -22,19 +17,9 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
-
 public class WatchTask extends DefaultTask {
-
-    @SuppressWarnings("rawtypes")
-    private static final Kind[] EVENT_KIND = {
-        ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE
-    };
 
     private Collection<WatchTarget> targets;
 
@@ -58,24 +43,7 @@ public class WatchTask extends DefaultTask {
         try (WatchService service = FileSystems.getDefault().newWatchService()) {
 
             for (WatchTarget target : targets) {
-
-                for (File file : target.getFiles()) {
-
-                    Path path = file.toPath();
-
-                    if (!file.isDirectory()) {
-                        path.getParent().register(service, EVENT_KIND, HIGH);
-
-                    } else {
-                        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                            throws IOException {
-                                dir.register(service, EVENT_KIND, HIGH);
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
-                    }
-                }
+                target.register(service);
             }
 
             List<WatchTarget> actualTargets = new ArrayList<>();
