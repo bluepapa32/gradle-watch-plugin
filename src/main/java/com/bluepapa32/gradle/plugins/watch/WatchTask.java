@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.TaskAction;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -153,7 +151,7 @@ public class WatchTask extends DefaultTask {
                 continue;
             }
 
-            if (!isTarget(target, path)) {
+            if (!target.isTarget(path)) {
                 continue;
             }
 
@@ -162,21 +160,5 @@ public class WatchTask extends DefaultTask {
         }
 
         return added;
-    }
-
-    private boolean isTarget(WatchTarget target, Path path) {
-
-        FileCollection files = target.getFiles();
-        if (files instanceof FileTree) {
-            return files.contains(path.toFile());
-        }
-
-        for (File file : files) {
-            if (path.startsWith(file.toPath())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
