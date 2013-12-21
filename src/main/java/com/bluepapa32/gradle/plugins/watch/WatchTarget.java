@@ -71,7 +71,6 @@ public class WatchTarget implements Named {
 
             return dirTree.getPatterns().getAsSpec().isSatisfiedBy(
                     new DefaultFileTreeElement(path.toFile(), new RelativePath(true, segments)));
-
         }
 
         if (files instanceof FileTree) {
