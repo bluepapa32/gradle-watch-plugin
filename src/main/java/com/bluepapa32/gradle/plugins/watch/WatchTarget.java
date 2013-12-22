@@ -46,10 +46,6 @@ public class WatchTarget implements Named {
         return name;
     }
 
-    public FileCollection getFiles() {
-        return files;
-    }
-
     public String[] getTasks() {
         return tasks;
     }
@@ -75,7 +71,7 @@ public class WatchTarget implements Named {
     }
 
     void register(final WatchService service) throws IOException {
-        for (File file : getFiles()) {
+        for (File file : files) {
 
             Path path = file.toPath();
 
