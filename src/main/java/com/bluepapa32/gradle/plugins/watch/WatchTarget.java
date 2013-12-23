@@ -9,6 +9,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchService;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gradle.api.Named;
 import org.gradle.api.file.DirectoryTree;
@@ -34,7 +36,7 @@ public class WatchTarget implements Named {
     };
 
     private String name;
-    private FileCollection files;
+    private List<FileCollection> fileCollections = new ArrayList<>();
     private String[] tasks;
 
     public WatchTarget(String name) {
@@ -51,7 +53,7 @@ public class WatchTarget implements Named {
     }
 
     public void files(FileCollection files) {
-        this.files = files;
+        fileCollections.add(files);
     }
 
     public void tasks(String... tasks) {
@@ -71,49 +73,56 @@ public class WatchTarget implements Named {
     }
 
     void register(final WatchService service) throws IOException {
-        for (File file : files) {
 
-            Path path = file.toPath();
+        for (FileCollection files : fileCollections) {
 
-            if (!file.isDirectory()) {
-                path.getParent().register(service, EVENT_KIND, HIGH);
+            for (File file : files) {
 
-            } else {
-                Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                    throws IOException {
-                        dir.register(service, EVENT_KIND, HIGH);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+                Path path = file.toPath();
+
+                if (!file.isDirectory()) {
+                    path.getParent().register(service, EVENT_KIND, HIGH);
+
+                } else {
+                    Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                        throws IOException {
+                            dir.register(service, EVENT_KIND, HIGH);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
             }
         }
     }
 
     boolean isTarget(Path path) {
 
-        if (files instanceof DirectoryTree) {
+        for (FileCollection fileCollection : fileCollections) {
 
-            DirectoryTree dirTree = (DirectoryTree) files;
+            if (fileCollection instanceof DirectoryTree) {
 
-            Path dir = dirTree.getDir().toPath();
-            if (!path.startsWith(dir)) {
-                return false;
+                DirectoryTree dirTree = (DirectoryTree) fileCollection;
+
+                Path dir = dirTree.getDir().toPath();
+                if (!path.startsWith(dir)) {
+                    return false;
+                }
+
+                String[] segments = toStringList(dir.relativize(path)).toArray(new String[0]);
+
+                return dirTree.getPatterns().getAsSpec().isSatisfiedBy(
+                        new DefaultFileTreeElement(path.toFile(), new RelativePath(true, segments)));
             }
 
-            String[] segments = toStringList(dir.relativize(path)).toArray(new String[0]);
+            if (fileCollection instanceof FileTree) {
+                return fileCollection.contains(path.toFile());
+            }
 
-            return dirTree.getPatterns().getAsSpec().isSatisfiedBy(
-                    new DefaultFileTreeElement(path.toFile(), new RelativePath(true, segments)));
-        }
-
-        if (files instanceof FileTree) {
-            return files.contains(path.toFile());
-        }
-
-        for (File file : files) {
-            if (path.startsWith(file.toPath())) {
-                return true;
+            for (File file : fileCollection) {
+                if (path.startsWith(file.toPath())) {
+                    return true;
+                }
             }
         }
 
