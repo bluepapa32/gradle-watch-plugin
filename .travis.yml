@@ -2,8 +2,8 @@ language: java
 jdk:
   - oraclejdk7
 install:
-  - TERM=dumb ./gradlew assemble 
+  - true
 script:
-  - TERM=dumb ./gradlew check 
+  - TERM=dumb ./gradlew build 
 after_script:
   - ./gradlew --stop
