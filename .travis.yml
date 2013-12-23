@@ -3,6 +3,6 @@ jdk:
   - oraclejdk7
 install: true
 script:
-  - ./gradlew -i build 
+  - TERM=dumb ./gradlew build 
 after_script:
   - ./gradlew --stop
