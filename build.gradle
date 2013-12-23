@@ -21,11 +21,15 @@ dependencies {
     testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
 }
 
+
+// -----------------------------------------------------------------------------
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
 }
 
+
+// -----------------------------------------------------------------------------
 artifacts {
     archives sourcesJar
 }
