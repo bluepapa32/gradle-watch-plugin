@@ -38,6 +38,10 @@ codenarc {
     sourceSets = [ sourceSets.main ]
 }
 
+eclipse.classpath.file.whenMerged { classpath ->
+    classpath.entries.findAll { e -> e.kind == 'src' }*.excludes = [ '**/.DS_Store' ]
+}
+
 if (hasProperty('mavenRepository')) {
     uploadArchives {
         repositories {
