@@ -111,13 +111,7 @@ public class WatchTask extends DefaultTask {
 
         boolean added = false;
 
-        long lastModified = path.toFile().lastModified();
-
         for (WatchTarget target : targets) {
-
-            if (lastModified <= target.getExecutedAt()) {
-                continue;
-            }
 
             if (!target.isTarget(path)) {
                 continue;

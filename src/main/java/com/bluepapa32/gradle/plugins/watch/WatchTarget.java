@@ -68,10 +68,6 @@ public class WatchTarget implements Named {
         this.executedAt = executedAt;
     }
 
-    long getExecutedAt() {
-        return executedAt;
-    }
-
     void register(final WatchService service) throws IOException {
 
         for (FileCollection files : fileCollections) {
@@ -98,6 +94,13 @@ public class WatchTarget implements Named {
 
     boolean isTarget(Path path) {
 
+        File f = path.toFile();
+
+        long lastModified = f.lastModified();
+        if (0 < lastModified && lastModified <= executedAt) {
+            return false;
+        }
+
         for (FileCollection fileCollection : fileCollections) {
 
             if (fileCollection instanceof DirectoryTree) {
@@ -112,11 +115,11 @@ public class WatchTarget implements Named {
                 String[] segments = toStringList(dir.relativize(path)).toArray(new String[0]);
 
                 return dirTree.getPatterns().getAsSpec().isSatisfiedBy(
-                        new DefaultFileTreeElement(path.toFile(), new RelativePath(true, segments)));
+                        new DefaultFileTreeElement(f, new RelativePath(true, segments)));
             }
 
             if (fileCollection instanceof FileTree) {
-                return fileCollection.contains(path.toFile());
+                return fileCollection.contains(f);
             }
 
             for (File file : fileCollection) {
