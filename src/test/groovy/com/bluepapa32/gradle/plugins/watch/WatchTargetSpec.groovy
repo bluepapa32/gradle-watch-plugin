@@ -7,13 +7,16 @@ class WatchTargetSpec extends Specification {
 
     def project = new ProjectBuilder().withProjectDir(new File('.')).build()
 
-    def "The target files are specified by FileTree"() {
-        when:
-        WatchTarget target = new WatchTarget();
+    def "Some files are specified by FileTree"() {
+        given:
+        WatchTarget target = new WatchTarget()
         target.files fileTree(dir: 'src/main/java', include: '**/*.java')
 
+        when:
+        File file = file(path)
+
         then:
-        expected == target.isTarget(new File(projectDir, path).toPath());
+        target.isTarget(file.toPath()) == expected
 
         where:
         path                                                                 | expected
@@ -27,13 +30,16 @@ class WatchTargetSpec extends Specification {
 
     }
 
-    def "a directory are specified by FileCollection"() {
-        when:
-        WatchTarget target = new WatchTarget();
+    def "A directory are specified by FileCollection"() {
+        given:
+        WatchTarget target = new WatchTarget()
         target.files files('src/main/java')
 
+        when:
+        File file = file(path)
+
         then:
-        expected == target.isTarget(new File(projectDir, path).toPath());
+        target.isTarget(file.toPath()) == expected
 
         where:
         path                                                                 | expected
@@ -46,13 +52,16 @@ class WatchTargetSpec extends Specification {
         "src/main/java/Main.groovy"                                          | true
     }
 
-    def "a file are specified by FileCollection"() {
-        when:
-        WatchTarget target = new WatchTarget();
+    def "A file are specified by FileCollection"() {
+        given:
+        WatchTarget target = new WatchTarget()
         target.files files('src/main/java/Main.java')
 
+        when:
+        File file = file(path)
+
         then:
-        expected == target.isTarget(new File(projectDir, path).toPath());
+        target.isTarget(file.toPath()) == expected
 
         where:
         path                                                                 | expected
@@ -65,13 +74,16 @@ class WatchTargetSpec extends Specification {
         "src/main/java/Main.groovy"                                          | false
     }
 
-    def "same files are specified by FileCollection"() {
-        when:
-        WatchTarget target = new WatchTarget();
+    def "Some files are specified by FileCollection"() {
+        given:
+        WatchTarget target = new WatchTarget()
         target.files files('src/main/java/Main.java', 'src/main/java/Hoge.java', 'src/test/java')
 
+        when:
+        File file = file(path)
+
         then:
-        expected == target.isTarget(new File(projectDir, path).toPath());
+        target.isTarget(file.toPath()) == expected
 
         where:
         path                                                                 | expected
@@ -89,14 +101,17 @@ class WatchTargetSpec extends Specification {
         "src/test/java/Main.groovy"                                          | true
     }
 
-    def "same files are specified by FileCollection and FileTree"() {
-        when:
-        WatchTarget target = new WatchTarget();
+    def "Some files are specified by FileCollection and FileTree"() {
+        given:
+        WatchTarget target = new WatchTarget()
         target.files files('src/main/java/Main.java', 'src/main/java/Hoge.java')
-        target.files fileTree(dir: 'src/test/java', include: '**/*.java');
+        target.files fileTree(dir: 'src/test/java', include: '**/*.java')
+
+        when:
+        File file = file(path)
 
         then:
-        expected == target.isTarget(new File(projectDir, path).toPath());
+        target.isTarget(file.toPath()) == expected
 
         where:
         path                                                                 | expected
