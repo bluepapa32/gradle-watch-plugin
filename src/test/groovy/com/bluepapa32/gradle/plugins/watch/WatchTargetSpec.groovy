@@ -129,6 +129,48 @@ class WatchTargetSpec extends Specification {
         "src/test/java/Main.groovy"                                          | false
     }
 
+    def "return true if the file is up to date"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java')
+
+        and:
+        File file = file("src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java")
+
+        expect: file.exists()
+
+        // up to date
+        when: target.executedAt = 0
+        then: target.isTarget(file.toPath())
+
+        when: target.executedAt = file.lastModified() - 1
+        then: target.isTarget(file.toPath())
+
+        // not up to date
+        when: target.executedAt = file.lastModified()
+        then: !target.isTarget(file.toPath())
+
+        when: target.executedAt = file.lastModified() + 1
+        then: !target.isTarget(file.toPath())
+    }
+
+    def "return true if the file does not exist"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java')
+
+        and:
+        File file = file("src/main/java/Main.java")
+
+        expect: !file.exists()
+
+        when: target.executedAt = 0
+        then: target.isTarget(file.toPath())
+
+        when: target.executedAt = System.currentTimeMillis()
+        then: target.isTarget(file.toPath())
+    }
+
 
 //  ----------------------------------------------------------------------------
     def methodMissing(String name, args) {
