@@ -7,6 +7,17 @@ class WatchTargetSpec extends Specification {
 
     def project = new ProjectBuilder().withProjectDir(new File('src/test/project')).build()
 
+    def "add some tasks"() {
+        given:
+        WatchTarget target = new WatchTarget()
+
+        when: target.tasks 'foo'
+        then: target.tasks == [ 'foo' ]
+
+        when: target.tasks 'bar', 'hoge'
+        then: target.tasks == [ 'foo', 'bar', 'hoge' ]
+    }
+
     def "Some files are specified by FileTree"() {
         given:
         WatchTarget target = new WatchTarget()

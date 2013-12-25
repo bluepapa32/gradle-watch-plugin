@@ -23,6 +23,8 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
+import static java.util.Collections.addAll;
+
 import static org.gradle.util.CollectionUtils.toStringList;
 
 import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
@@ -37,7 +39,7 @@ public class WatchTarget implements Named {
 
     private String name;
     private List<FileCollection> fileCollections = new ArrayList<>();
-    private String[] tasks;
+    private List<String> tasks = new ArrayList<>();
 
     public WatchTarget(String name) {
         this.name = name;
@@ -48,7 +50,7 @@ public class WatchTarget implements Named {
         return name;
     }
 
-    public String[] getTasks() {
+    public List<String> getTasks() {
         return tasks;
     }
 
@@ -57,7 +59,7 @@ public class WatchTarget implements Named {
     }
 
     public void tasks(String... tasks) {
-        this.tasks = tasks;
+        addAll(this.tasks, tasks);
     }
 
 //  ------------------------------------------------------------- package private
