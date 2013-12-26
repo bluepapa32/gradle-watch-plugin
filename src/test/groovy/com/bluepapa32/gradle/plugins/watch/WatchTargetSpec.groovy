@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class WatchTargetSpec extends Specification {
 
-    def project = new ProjectBuilder().withProjectDir(new File('.')).build()
+    def project = new ProjectBuilder().withProjectDir(new File('src/test/project')).build()
 
     def "Some files are specified by FileTree"() {
         given:
@@ -19,14 +19,14 @@ class WatchTargetSpec extends Specification {
         target.isTarget(file.toPath()) == expected
 
         where:
-        path                                                                 | expected
-        "hoge"                                                               | false
-        "src"                                                                | false
-        "src/main"                                                           | false
-        "src/main/java"                                                      | false
-        "src/main/java/Main.java"                                            | true
-        "src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | true
-        "src/main/java/Main.groovy"                                          | false
+        path                                       | expected
+        "hoge"                                     | false
+        "src"                                      | false
+        "src/main"                                 | false
+        "src/main/java"                            | false
+        "src/main/java/com/bluepapa32/Main.java"   | true
+        "src/main/java/com/bluepapa32/Hoge.java"   | true     // not exist
+        "src/main/java/com/bluepapa32/Main.groovy" | false    // not match
 
     }
 
@@ -42,20 +42,20 @@ class WatchTargetSpec extends Specification {
         target.isTarget(file.toPath()) == expected
 
         where:
-        path                                                                 | expected
-        "hoge"                                                               | false
-        "src"                                                                | false
-        "src/main"                                                           | false
-        "src/main/java"                                                      | true
-        "src/main/java/Main.java"                                            | true
-        "src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | true
-        "src/main/java/Main.groovy"                                          | true
+        path                                         | expected
+        "hoge"                                       | false
+        "src"                                        | false
+        "src/main"                                   | false
+        "src/main/java"                              | true
+        "src/main/java/com/bluepapa32/Main.java"     | true
+        "src/main/java/com/bluepapa32/Hoge.java"     | true    // not exist
+        "src/test/java/com/bluepapa32/MainTest.java" | false   // not match
     }
 
     def "A file are specified by FileCollection"() {
         given:
         WatchTarget target = new WatchTarget()
-        target.files files('src/main/java/Main.java')
+        target.files files('src/main/java/com/bluepapa32/Main.java')
 
         when:
         File file = file(path)
@@ -64,20 +64,20 @@ class WatchTargetSpec extends Specification {
         target.isTarget(file.toPath()) == expected
 
         where:
-        path                                                                 | expected
-        "hoge"                                                               | false
-        "src"                                                                | false
-        "src/main"                                                           | false
-        "src/main/java"                                                      | false
-        "src/main/java/Main.java"                                            | true
-        "src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | false
-        "src/main/java/Main.groovy"                                          | false
+        path                                         | expected
+        "hoge"                                       | false
+        "src"                                        | false
+        "src/main"                                   | false
+        "src/main/java"                              | false
+        "src/main/java/com/bluepapa32/Main.java"     | true
+        "src/main/java/com/bluepapa32/Hoge.java"     | false   // not match
+        "src/test/java/com/bluepapa32/MainTest.java" | false   // not match
     }
 
     def "Some files are specified by FileCollection"() {
         given:
         WatchTarget target = new WatchTarget()
-        target.files files('src/main/java/Main.java', 'src/main/java/Hoge.java', 'src/test/java')
+        target.files files('src/main/java/com/bluepapa32/Main.java', 'src/main/java/com/bluepapa32/Hoge.java', 'src/test/java')
 
         when:
         File file = file(path)
@@ -86,25 +86,23 @@ class WatchTargetSpec extends Specification {
         target.isTarget(file.toPath()) == expected
 
         where:
-        path                                                                 | expected
-        "hoge"                                                               | false
-        "src"                                                                | false
-        "src/main"                                                           | false
-        "src/main/java"                                                      | false
-        "src/main/java/Main.java"                                            | true
-        "src/main/java/Hoge.java"                                            | true
-        "src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | false
-        "src/main/java/Main.groovy"                                          | false
-        "src/test/java/Main.java"                                            | true
-        "src/test/java/Hoge.java"                                            | true
-        "src/test/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | true
-        "src/test/java/Main.groovy"                                          | true
+        path                                          | expected
+        "hoge"                                        | false
+        "src"                                         | false
+        "src/main"                                    | false
+        "src/main/java"                               | false
+        "src/main/java/com/bluepapa32/Main.java"      | true
+        "src/main/java/com/bluepapa32/Hoge.java"      | true       // not exist
+        "src/main/java/com/bluepapa32/Foo.java"       | false      // not match
+        "src/test/java/com/bluepapa32/MainTest.java"  | true
+        "src/test/java/com/bluepapa32/HogeTest.java"  | true       // not exist
+        "src/test/java/com/bluepapa32/FooTest.groovy" | true       // not match
     }
 
     def "Some files are specified by FileCollection and FileTree"() {
         given:
         WatchTarget target = new WatchTarget()
-        target.files files('src/main/java/Main.java', 'src/main/java/Hoge.java')
+        target.files files('src/main/java/com/bluepapa32/Main.java', 'src/main/java/com/bluepapa32/Hoge.java')
         target.files fileTree(dir: 'src/test/java', include: '**/*.java')
 
         when:
@@ -114,19 +112,17 @@ class WatchTargetSpec extends Specification {
         target.isTarget(file.toPath()) == expected
 
         where:
-        path                                                                 | expected
-        "hoge"                                                               | false
-        "src"                                                                | false
-        "src/main"                                                           | false
-        "src/main/java"                                                      | false
-        "src/main/java/Main.java"                                            | true
-        "src/main/java/Hoge.java"                                            | true
-        "src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | false
-        "src/main/java/Main.groovy"                                          | false
-        "src/test/java/Main.java"                                            | true
-        "src/test/java/Hoge.java"                                            | true
-        "src/test/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java" | true
-        "src/test/java/Main.groovy"                                          | false
+        path                                          | expected
+        "hoge"                                        | false
+        "src"                                         | false
+        "src/main"                                    | false
+        "src/main/java"                               | false
+        "src/main/java/com/bluepapa32/Main.java"      | true
+        "src/main/java/com/bluepapa32/Hoge.java"      | true    // not exist
+        "src/main/java/com/bluepapa32/Foo.java"       | false   // not match
+        "src/test/java/com/bluepapa32/MainTest.java"  | true
+        "src/test/java/com/bluepapa32/HogeTest.java"  | true    // not exist
+        "src/test/java/com/bluepapa32/FooTest.groovy" | false   // not match
     }
 
     def "return true if the file is up to date"() {
@@ -135,7 +131,7 @@ class WatchTargetSpec extends Specification {
         target.files files('src/main/java')
 
         and:
-        File file = file("src/main/java/com/bluepapa32/gradle/plugins/watch/WatchTarget.java")
+        File file = file("src/main/java/com/bluepapa32/Main.java")
 
         expect: file.exists()
 
@@ -160,7 +156,7 @@ class WatchTargetSpec extends Specification {
         target.files files('src/main/java')
 
         and:
-        File file = file("src/main/java/Main.java")
+        File file = file("src/main/java/com/bluepapa32/Hoge.java")
 
         expect: !file.exists()
 
