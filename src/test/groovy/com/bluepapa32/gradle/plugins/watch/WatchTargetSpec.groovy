@@ -178,20 +178,59 @@ class WatchTargetSpec extends Specification {
         then: target.isTarget(file.toPath())
     }
 
+//  ------------------------------------------------------------------------------
+
+    def "watch one file"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java/com/bluepapa32/Main.java')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        watcher.paths.size() == 1
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
+    }
+
+    def "watch more than one file"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java/com/bluepapa32/Main.java',
+                           'src/test/java/com/bluepapa32/MainTest.java')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        watcher.paths.size() == 2
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
+        watcher.paths.contains(file('src/test/java/com/bluepapa32').toPath())
+    }
+
+
     def "watch one directory"() {
         given:
         WatchTarget target = new WatchTarget()
         target.files files('src/main/java')
 
         and:
-        Watcher watcher = Mock()
+        DefaultWatcher watcher = new DefaultWatcher()
 
         when:
         target.register(watcher)
 
         then:
-        1 * watcher.register(file("src/main/java").toPath())
-        0 * watcher.register(_)
+        watcher.paths.size() == 3
+        watcher.paths.contains(file('src/main/java').toPath())
+        watcher.paths.contains(file('src/main/java/com').toPath())
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
     }
 
     def "watch more than one directory"() {
@@ -200,15 +239,53 @@ class WatchTargetSpec extends Specification {
         target.files files('src/main/java', 'src/test/java')
 
         and:
-        Watcher watcher = Mock()
+        DefaultWatcher watcher = new DefaultWatcher()
 
         when:
         target.register(watcher)
 
         then:
-        1 * watcher.register(file("src/main/java").toPath())
-        1 * watcher.register(file("src/test/java").toPath())
-        0 * watcher.register(_)
+        watcher.paths.size() == 6
+        watcher.paths.contains(file('src/main/java').toPath())
+        watcher.paths.contains(file('src/main/java/com').toPath())
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
+        watcher.paths.contains(file('src/test/java').toPath())
+        watcher.paths.contains(file('src/test/java/com').toPath())
+        watcher.paths.contains(file('src/test/java/com/bluepapa32').toPath())
+    }
+
+    def "watch more than one file or directory"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java', 'src/test/java/com/bluepapa32/MainTest.java')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        watcher.paths.size() == 4
+        watcher.paths.contains(file('src/main/java').toPath())
+        watcher.paths.contains(file('src/main/java/com').toPath())
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
+        watcher.paths.contains(file('src/test/java/com/bluepapa32').toPath())
+    }
+
+     def "watch a file that does not exist"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java/com/bluepapa32/MainTest.java')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        thrown(java.nio.file.NoSuchFileException)
     }
 
     def "watch a directory which has the specified files"() {
@@ -217,14 +294,16 @@ class WatchTargetSpec extends Specification {
         target.files fileTree(dir: 'src/main/java', include: '**/*.java')
 
         and:
-        Watcher watcher = Mock()
+        DefaultWatcher watcher = new DefaultWatcher()
 
         when:
         target.register(watcher)
 
         then:
-        1 * watcher.register(file("src/main/java").toPath())
-        0 * watcher.register(_)
+        watcher.paths.size() == 3
+        watcher.paths.contains(file('src/main/java').toPath())
+        watcher.paths.contains(file('src/main/java/com').toPath())
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
     }
 
     def "watch a directory which has no specified files"() {
@@ -233,14 +312,56 @@ class WatchTargetSpec extends Specification {
         target.files fileTree(dir: 'src/main/java', include: '**/*.groovy')
 
         and:
-        Watcher watcher = Mock()
+        DefaultWatcher watcher = new DefaultWatcher()
 
         when:
         target.register(watcher)
 
         then:
-        1 * watcher.register(file("src/main/java").toPath())
-        0 * watcher.register(_)
+        watcher.paths.size() == 3
+        watcher.paths.contains(file('src/main/java').toPath())
+        watcher.paths.contains(file('src/main/java/com').toPath())
+        watcher.paths.contains(file('src/main/java/com/bluepapa32').toPath())
+    }
+
+    def "watch a directory that does not exist"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files fileTree(dir: 'src/main/groovy', include: '**/*.groovy')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        thrown(java.nio.file.NoSuchFileException)
+    }
+
+    def "watch a empty directory"() {
+
+        assert !file('src/hoge').exists()
+        mkdir 'src/hoge/java'
+
+        def mkdirs = true
+
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files fileTree(dir: 'src/hoge/java', include: '**/*.java')
+
+        and:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        target.register(watcher)
+
+        then:
+        watcher.paths.size() == 1
+        watcher.paths.contains(file('src/hoge/java').toPath())
+
+        cleanup:
+        if (mkdirs) delete 'src/hoge'
     }
 
 
