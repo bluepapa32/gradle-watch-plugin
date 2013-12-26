@@ -10,6 +10,9 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.Set;
+import java.util.HashSet;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -26,8 +29,15 @@ public class DefaultWatcher implements Watcher {
 
     private WatchService service;
 
+    private Set<Path> paths;
+
     public DefaultWatcher() throws IOException {
         this.service = FileSystems.getDefault().newWatchService();
+        this.paths   = new HashSet<>();
+    }
+
+    Set<Path> getPaths() {
+        return Collections.unmodifiableSet(paths);
     }
 
     @Override
@@ -38,16 +48,20 @@ public class DefaultWatcher implements Watcher {
         }
 
         if (!Files.isDirectory(path)) {
-            path.getParent().register(service, EVENT_KIND, HIGH);
-        } else {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-                    dir.register(service, EVENT_KIND, HIGH);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+            Path dir = path.getParent();
+            dir.register(service, EVENT_KIND, HIGH);
+            paths.add(dir);
+            return;
         }
+
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+            throws IOException {
+                dir.register(service, EVENT_KIND, HIGH);
+                paths.add(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     public WatchKey take() throws InterruptedException {
