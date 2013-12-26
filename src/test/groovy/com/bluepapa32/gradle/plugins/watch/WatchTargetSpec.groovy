@@ -178,6 +178,71 @@ class WatchTargetSpec extends Specification {
         then: target.isTarget(file.toPath())
     }
 
+    def "watch one directory"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java')
+
+        and:
+        Watcher watcher = Mock()
+
+        when:
+        target.register(watcher)
+
+        then:
+        1 * watcher.register(file("src/main/java").toPath())
+        0 * watcher.register(_)
+    }
+
+    def "watch more than one directory"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files files('src/main/java', 'src/test/java')
+
+        and:
+        Watcher watcher = Mock()
+
+        when:
+        target.register(watcher)
+
+        then:
+        1 * watcher.register(file("src/main/java").toPath())
+        1 * watcher.register(file("src/test/java").toPath())
+        0 * watcher.register(_)
+    }
+
+    def "watch a directory which has the specified files"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files fileTree(dir: 'src/main/java', include: '**/*.java')
+
+        and:
+        Watcher watcher = Mock()
+
+        when:
+        target.register(watcher)
+
+        then:
+        1 * watcher.register(file("src/main/java").toPath())
+        0 * watcher.register(_)
+    }
+
+    def "watch a directory which has no specified files"() {
+        given:
+        WatchTarget target = new WatchTarget()
+        target.files fileTree(dir: 'src/main/java', include: '**/*.groovy')
+
+        and:
+        Watcher watcher = Mock()
+
+        when:
+        target.register(watcher)
+
+        then:
+        1 * watcher.register(file("src/main/java").toPath())
+        0 * watcher.register(_)
+    }
+
 
 //  ----------------------------------------------------------------------------
     def methodMissing(String name, args) {
