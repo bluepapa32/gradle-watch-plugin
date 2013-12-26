@@ -2,13 +2,8 @@ package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +20,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.util.Collections.addAll;
 
 import static org.gradle.util.CollectionUtils.toStringList;
-
-import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
 
 
 public class WatchTarget implements Named {
@@ -69,41 +62,14 @@ public class WatchTarget implements Named {
         this.executedAt = executedAt;
     }
 
-    void register(final WatchService service) throws IOException {
-
+    void register(Watcher watcher) throws IOException {
         for (FileCollection files : fileCollections) {
-
             if (files instanceof DirectoryTree) {
-
                 DirectoryTree dirTree = (DirectoryTree) files;
-                Path path = dirTree.getDir().toPath();
-
-                Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                    throws IOException {
-                        dir.register(service, EVENT_KIND, HIGH);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-
+                watcher.register(dirTree.getDir().toPath());
             } else {
-
                 for (File file : files) {
-
-                    Path path = file.toPath();
-
-                    if (!file.isDirectory()) {
-                        path.getParent().register(service, EVENT_KIND, HIGH);
-
-                    } else {
-                        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                            throws IOException {
-                                dir.register(service, EVENT_KIND, HIGH);
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
-                    }
+                    watcher.register(file.toPath());
                 }
             }
         }

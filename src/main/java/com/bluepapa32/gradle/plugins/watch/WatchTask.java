@@ -1,12 +1,10 @@
 package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -40,7 +38,7 @@ public class WatchTask extends DefaultTask {
 
         Path projectPath = getProject().getProjectDir().toPath();
 
-        try (WatchService service = FileSystems.getDefault().newWatchService()) {
+        try (Watcher service = new DefaultWatcher()) {
 
             for (WatchTarget target : targets) {
                 target.register(service);
