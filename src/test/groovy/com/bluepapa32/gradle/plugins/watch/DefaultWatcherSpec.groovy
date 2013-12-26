@@ -1,11 +1,10 @@
 package com.bluepapa32.gradle.plugins.watch
 
+import com.bluepapa32.gradle.plugins.GradlePluginSpecification
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class DefaultWatcherSpec extends Specification {
-
-    def project = new ProjectBuilder().withProjectDir(new File('src/test/project')).build()
+class DefaultWatcherSpec extends GradlePluginSpecification {
 
     def "register a directory which has children"() {
         given:
@@ -76,20 +75,6 @@ class DefaultWatcherSpec extends Specification {
 
         then:
         thrown(java.nio.file.NoSuchFileException)
-    }
-
-
-//  ----------------------------------------------------------------------------
-    def methodMissing(String name, args) {
-        project."$name"(*args)
-    }
-
-    def propertyMissing(String name) {
-        project."$name"
-    }
-
-    def propertyMissing(String name, value) {
-        project."$name" = value
     }
 }
 

@@ -1,11 +1,10 @@
 package com.bluepapa32.gradle.plugins.watch
 
+import com.bluepapa32.gradle.plugins.GradlePluginSpecification
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class WatchPluginSpec extends Specification {
-
-    def project = new ProjectBuilder().build()
+class WatchPluginSpec extends GradlePluginSpecification {
 
     def "applies plugin"() {
         when:
@@ -47,19 +46,5 @@ class WatchPluginSpec extends Specification {
         tasks.findByPath('watchmain') == null
         tasks.findByPath('watchtest') == null
         tasks.findByPath('watchHoge') == null
-    }
-
-
-//  ----------------------------------------------------------------------------
-    def methodMissing(String name, args) {
-        project."$name"(*args)
-    }
-
-    def propertyMissing(String name) {
-        project."$name"
-    }
-
-    def propertyMissing(String name, value) {
-        project."$name" = value
     }
 }
