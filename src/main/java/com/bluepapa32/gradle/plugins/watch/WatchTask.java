@@ -8,8 +8,7 @@ import java.nio.file.WatchKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.gradle.api.DefaultTask;
@@ -44,8 +43,7 @@ public class WatchTask extends DefaultTask {
                 target.register(service);
             }
 
-            List<WatchTarget> actualTargets = new ArrayList<>();
-            Set<Path> changedPaths = new LinkedHashSet<>();
+            Set<WatchTarget> actualTargets = new HashSet<>();
 
             try (WatchTargetTaskRunner runner = new WatchTargetTaskRunner(getProject())) {
 
@@ -73,10 +71,6 @@ public class WatchTask extends DefaultTask {
                             continue;
                         }
 
-                        changedPaths.add(path);
-                    }
-
-                    for (Path path : changedPaths) {
                         if (addWatchTarget(actualTargets, path)) {
                             getLogger().lifecycle("");
                             getLogger().lifecycle(
@@ -91,10 +85,8 @@ public class WatchTask extends DefaultTask {
                                     + "----------------------------------------");
                         }
                     }
-                    changedPaths.clear();
 
-                    runner.run(actualTargets);
-
+                    runner.run(new ArrayList<>(actualTargets));
                     actualTargets.clear();
 
                     if (!key.reset()) {
@@ -105,7 +97,7 @@ public class WatchTask extends DefaultTask {
         }
     }
 
-    private boolean addWatchTarget(List<WatchTarget> actualTargets, Path path) {
+    private boolean addWatchTarget(Collection<WatchTarget> actualTargets, Path path) {
 
         boolean added = false;
 
@@ -115,8 +107,9 @@ public class WatchTask extends DefaultTask {
                 continue;
             }
 
-            added = true;
-            actualTargets.add(target);
+            if (actualTargets.add(target)) {
+                added = true;
+            }
         }
 
         return added;
