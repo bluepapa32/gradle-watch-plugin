@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
@@ -26,6 +29,8 @@ public class DefaultWatcher implements Watcher {
     private static final Kind[] EVENT_KIND = {
         ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE
     };
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultWatcher.class);
 
     private WatchService service;
 
@@ -48,17 +53,29 @@ public class DefaultWatcher implements Watcher {
         }
 
         if (!Files.isDirectory(path)) {
+
             Path dir = path.getParent();
             dir.register(service, EVENT_KIND, HIGH);
             paths.add(dir);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{} is registered.", dir);
+            }
+
             return;
         }
 
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
             throws IOException {
+
                 dir.register(service, EVENT_KIND, HIGH);
                 paths.add(dir);
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("{} is registered.", dir);
+                }
+
                 return FileVisitResult.CONTINUE;
             }
         });

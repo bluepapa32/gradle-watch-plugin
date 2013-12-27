@@ -3,7 +3,6 @@ package com.bluepapa32.gradle.plugins.watch;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,20 +13,12 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.internal.file.DefaultFileTreeElement;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.util.Collections.addAll;
 
 import static org.gradle.util.CollectionUtils.toStringList;
 
 
 public class WatchTarget implements Named {
-
-    @SuppressWarnings("rawtypes")
-    private static final Kind[] EVENT_KIND = {
-        ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE
-    };
 
     private String name;
     private List<FileCollection> fileCollections = new ArrayList<>();
