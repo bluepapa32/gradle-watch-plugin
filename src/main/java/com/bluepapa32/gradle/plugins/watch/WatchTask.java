@@ -2,9 +2,12 @@ package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -14,11 +17,17 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 public class WatchTask extends DefaultTask {
 
     private Collection<WatchTarget> targets;
+    private Path projectPath;
+
+    public WatchTask() {
+        projectPath = getProject().getProjectDir().toPath();
+    }
 
     Collection<WatchTarget> getTargets() {
         return targets;
@@ -34,8 +43,6 @@ public class WatchTask extends DefaultTask {
         if (targets == null || targets.isEmpty()) {
             return;
         }
-
-        Path projectPath = getProject().getProjectDir().toPath();
 
         try (Watcher service = new DefaultWatcher()) {
 
@@ -68,6 +75,32 @@ public class WatchTask extends DefaultTask {
                         Path path = dir.resolve(name);
 
                         if (Files.isDirectory(path)) {
+
+                            if (event.kind() == ENTRY_CREATE) {
+                                getLogger().lifecycle("");
+                                getLogger().lifecycle(
+                                        "----------------------------------------"
+                                        + "----------------------------------------");
+                                getLogger().lifecycle(" \033[36m{}\033[39m",
+                                                      new Date(path.toFile().lastModified()));
+
+                                Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                                    throws IOException {
+
+                                        getLogger().lifecycle(" Directory \"{}\" was created.",
+                                                              projectPath.relativize(dir));
+                                        return FileVisitResult.CONTINUE;
+                                    }
+                                });
+
+                                getLogger().lifecycle(
+                                        "----------------------------------------"
+                                        + "----------------------------------------");
+
+                                service.register(path);
+                            }
+
                             continue;
                         }
 
