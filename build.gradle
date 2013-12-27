@@ -7,10 +7,6 @@ apply plugin: 'eclipse'
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
 
-group            = 'com.bluepapa32.gradle.plugins'
-archivesBaseName = 'gradle-watch-plugin'
-version          = '0.1.0'
-
 repositories {
     mavenCentral()
 }
