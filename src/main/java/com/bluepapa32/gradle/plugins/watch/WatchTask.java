@@ -64,13 +64,28 @@ public class WatchTask extends DefaultTask {
                         return;
                     }
 
+                    Path dir = (Path) key.watchable();
+                    if (!Files.exists(dir)) {
+                        getLogger().lifecycle("");
+                        getLogger().lifecycle(
+                                "----------------------------------------"
+                                + "----------------------------------------");
+                        getLogger().lifecycle(" \033[36m{}\033[39m",
+                                              new Date());
+                        getLogger().lifecycle(" Directory \"{}\" was deleted.",
+                                              projectPath.relativize(dir));
+                        getLogger().lifecycle(
+                                "----------------------------------------"
+                                + "----------------------------------------");
+                        continue;
+                    }
+
                     for (WatchEvent<?> event : key.pollEvents()) {
 
                         if (event.kind() == OVERFLOW) {
                             continue;
                         }
 
-                        Path dir  = (Path) key.watchable();
                         Path name = (Path) event.context();
                         Path path = dir.resolve(name);
 
