@@ -98,8 +98,7 @@ public class WatchTask extends DefaultTask {
                                 getLogger().lifecycle(
                                         "----------------------------------------"
                                         + "----------------------------------------");
-                                getLogger().lifecycle(" \033[36m{}\033[39m",
-                                                      new Date(path.toFile().lastModified()));
+                                getLogger().lifecycle(" \033[36m{}\033[39m", new Date());
 
                                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
