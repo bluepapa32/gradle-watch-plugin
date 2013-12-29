@@ -18,6 +18,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 public class WatchTask extends DefaultTask {
@@ -126,8 +128,8 @@ public class WatchTask extends DefaultTask {
                                     + "----------------------------------------");
                             getLogger().lifecycle(" \033[36m{}\033[39m",
                                                          new Date(path.toFile().lastModified()));
-                            getLogger().lifecycle(" File \"{}\" changed.",
-                                                         projectPath.relativize(path));
+                            getLogger().lifecycle(" File \"{}\" was {}.",
+                                                         projectPath.relativize(path), toString(event.kind()));
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
@@ -161,5 +163,22 @@ public class WatchTask extends DefaultTask {
         }
 
         return added;
+    }
+
+    private String toString(WatchEvent.Kind<?> eventKind) {
+
+        if (eventKind == ENTRY_CREATE) {
+            return "created";
+        }
+
+        if (eventKind == ENTRY_MODIFY) {
+            return "changed";
+        }
+
+        if (eventKind == ENTRY_DELETE) {
+            return "deleted";
+        }
+
+        throw new IllegalStateException(String.valueOf(eventKind));
     }
 }
