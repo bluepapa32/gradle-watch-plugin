@@ -181,9 +181,8 @@ public class WatchTask extends DefaultTask {
                 continue;
             }
 
-            if (actualTargets.add(target)) {
-                added = true;
-            }
+            actualTargets.add(target);
+            added = true;
         }
 
         return added;
