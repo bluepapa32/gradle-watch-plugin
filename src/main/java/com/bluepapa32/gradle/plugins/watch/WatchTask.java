@@ -67,6 +67,13 @@ public class WatchTask extends DefaultTask {
                     }
 
                     Path dir = (Path) key.watchable();
+
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("[TAKE ] WatchKey@{} for \"{}\".",
+                                          System.identityHashCode(key),
+                                          projectPath.relativize(dir));
+                    }
+
                     if (!Files.exists(dir)) {
                         getLogger().lifecycle("");
                         getLogger().lifecycle(
@@ -90,6 +97,13 @@ public class WatchTask extends DefaultTask {
 
                         Path name = (Path) event.context();
                         Path path = dir.resolve(name);
+
+                        if (getLogger().isDebugEnabled()) {
+                            getLogger().debug("\"{}\" was {}. ({})",
+                                              projectPath.relativize(path),
+                                              toString(event.kind()),
+                                              new Date(path.toFile().lastModified()));
+                        }
 
                         if (Files.isDirectory(path)) {
 
@@ -138,7 +152,18 @@ public class WatchTask extends DefaultTask {
                     runner.run(new ArrayList<>(actualTargets));
                     actualTargets.clear();
 
-                    if (!key.reset()) {
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("[RESET] WatchKey@{} for \"{}\".",
+                                          System.identityHashCode(key),
+                                          projectPath.relativize(dir));
+                    }
+
+                    key.reset();
+
+                    if (!key.isValid()) {
+                        getLogger().error("WatchKey@{} for \"{}\" is not valid.",
+                                          System.identityHashCode(key),
+                                          projectPath.relativize(dir));
                         break;
                     }
                 }
