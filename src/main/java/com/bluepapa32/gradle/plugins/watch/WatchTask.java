@@ -66,6 +66,7 @@ public class WatchTask extends DefaultTask {
                         return;
                     }
 
+                    Date timestamp = new Date();
                     Path dir = (Path) key.watchable();
 
                     if (getLogger().isDebugEnabled()) {
@@ -79,8 +80,7 @@ public class WatchTask extends DefaultTask {
                         getLogger().lifecycle(
                                 "----------------------------------------"
                                 + "----------------------------------------");
-                        getLogger().lifecycle(" \033[36m{}\033[39m",
-                                              new Date());
+                        getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
                         getLogger().lifecycle(" Directory \"{}\" was deleted.",
                                               projectPath.relativize(dir));
                         getLogger().lifecycle(
@@ -112,7 +112,7 @@ public class WatchTask extends DefaultTask {
                                 getLogger().lifecycle(
                                         "----------------------------------------"
                                         + "----------------------------------------");
-                                getLogger().lifecycle(" \033[36m{}\033[39m", new Date());
+                                getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
 
                                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -139,10 +139,10 @@ public class WatchTask extends DefaultTask {
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
-                            getLogger().lifecycle(" \033[36m{}\033[39m",
-                                                         new Date(path.toFile().lastModified()));
+                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
                             getLogger().lifecycle(" File \"{}\" was {}.",
-                                                         projectPath.relativize(path), toString(event.kind()));
+                                                  projectPath.relativize(path),
+                                                  toString(event.kind()));
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
