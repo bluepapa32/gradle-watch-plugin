@@ -35,16 +35,8 @@ class WatchPluginSpec extends GradlePluginSpecification {
         tasks['watch'].targets.size() == 2
 
         then:
-        tasks['watchMain'] instanceof WatchTask
-        tasks['watchMain'].targets*.name == ['main']
-
-        then:
-        tasks['watchTest'] instanceof WatchTask
-        tasks['watchTest'].targets*.name == ['test']
-
-        then:
-        tasks.findByPath('watchmain') == null
-        tasks.findByPath('watchtest') == null
+        tasks.findByPath('watchMain') == null
+        tasks.findByPath('watchTest') == null
         tasks.findByPath('watchHoge') == null
     }
 }

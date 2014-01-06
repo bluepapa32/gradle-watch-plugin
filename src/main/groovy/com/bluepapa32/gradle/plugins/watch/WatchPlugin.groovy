@@ -11,24 +11,11 @@ class WatchPlugin implements Plugin<Project> {
             project.extensions.create(name, WatchTarget, name)
         }
 
-        project.tasks.addRule("Pattern: watch<Name>: Watch the only target that is specified by name.") { taskName ->
-
-            if (!taskName.startsWith('watch')) {
-                return;
-            }
-
-            def targets = project.watch.findAll {
-                "watch${it.name[0].toUpperCase()}${it.name[1..-1]}" == taskName
-            }
-
-            if (targets) {
-                project.task(taskName, type: WatchTask) {
-                    watch targets
-                }
-            }
+        project.task('watchRun') << {
+            println 'Successfully started watcher.'
         }
 
-        project.task('watch', type: WatchTask, description: 'Runs predefined tasks whenever watched files are added, changed or deleted.') {
+        project.task('watch', type: WatchTask) {
             watch project.watch
         }
     }
