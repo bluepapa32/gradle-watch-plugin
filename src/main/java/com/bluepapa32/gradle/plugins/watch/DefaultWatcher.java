@@ -121,6 +121,7 @@ public class DefaultWatcher implements Watcher {
     }
 
     public void close() throws IOException {
+        paths.clear();
         service.close();
     }
 }

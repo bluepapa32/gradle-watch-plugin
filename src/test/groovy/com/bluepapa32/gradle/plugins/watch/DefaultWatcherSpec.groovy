@@ -179,5 +179,20 @@ class DefaultWatcherSpec extends GradlePluginSpecification {
         watcher.isWatching(file("src/main/java/com/bluepapa32").toPath())
         !watcher.isWatching(file("src/main/java/com/bluepapa32/hoge").toPath())
     }
+
+    def "close the watcher"() {
+        given:
+        DefaultWatcher watcher = new DefaultWatcher()
+
+        when:
+        watcher.register(file("src/main/java").toPath())
+        then:
+        watcher.paths.size() == 3
+
+        when:
+        watcher.close()
+        then:
+        watcher.paths.isEmpty()
+    }
 }
 
