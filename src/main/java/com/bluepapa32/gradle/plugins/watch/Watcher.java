@@ -8,5 +8,7 @@ import java.nio.file.WatchKey;
 public interface Watcher extends Closeable {
 
     void register(Path path) throws IOException;
+    void unregister(Path path) throws IOException;
+    boolean isWatching(Path path);
     WatchKey take() throws InterruptedException;
 }
