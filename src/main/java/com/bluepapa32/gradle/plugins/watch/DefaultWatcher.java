@@ -112,6 +112,10 @@ public class DefaultWatcher implements Watcher {
         }
     }
 
+    public boolean isWatching(Path path) {
+        return paths.containsKey(path);
+    }
+
     public WatchKey take() throws InterruptedException {
         return service.take();
     }
