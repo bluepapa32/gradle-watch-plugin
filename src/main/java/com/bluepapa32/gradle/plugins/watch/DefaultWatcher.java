@@ -11,8 +11,11 @@ import java.nio.file.WatchService;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +37,15 @@ public class DefaultWatcher implements Watcher {
 
     private WatchService service;
 
-    private Set<Path> paths;
+    private Map<Path, WatchKey> paths;
 
     public DefaultWatcher() throws IOException {
         this.service = FileSystems.getDefault().newWatchService();
-        this.paths   = new HashSet<>();
+        this.paths   = new LinkedHashMap<>();
     }
 
     Set<Path> getPaths() {
-        return Collections.unmodifiableSet(paths);
+        return Collections.unmodifiableSet(paths.keySet());
     }
 
     @Override
@@ -55,8 +58,7 @@ public class DefaultWatcher implements Watcher {
         if (!Files.isDirectory(path)) {
 
             Path dir = path.getParent();
-            dir.register(service, EVENT_KIND, HIGH);
-            paths.add(dir);
+            paths.put(dir, dir.register(service, EVENT_KIND, HIGH));
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} is registered.", dir);
@@ -69,8 +71,7 @@ public class DefaultWatcher implements Watcher {
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
             throws IOException {
 
-                dir.register(service, EVENT_KIND, HIGH);
-                paths.add(dir);
+                paths.put(dir, dir.register(service, EVENT_KIND, HIGH));
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("{} is registered.", dir);
@@ -79,6 +80,36 @@ public class DefaultWatcher implements Watcher {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public void unregister(Path path) throws IOException {
+
+        Iterator<Entry<Path, WatchKey>> it = paths.entrySet().iterator();
+        while (it.hasNext()) {
+
+            Entry<Path, WatchKey> e = it.next();
+
+            Path p = e.getKey();
+            if (!p.startsWith(path)) {
+                continue;
+            }
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{} is unregistered", p);
+            }
+
+            e.getValue().cancel();
+            it.remove();
+        }
+
+        for (Entry<Path, WatchKey> e : paths.entrySet()) {
+            if (e.getValue().isValid()) {
+                continue;
+            }
+
+            Path p = e.getKey();
+            paths.put(p, p.register(service, EVENT_KIND, HIGH));
+        }
     }
 
     public WatchKey take() throws InterruptedException {
