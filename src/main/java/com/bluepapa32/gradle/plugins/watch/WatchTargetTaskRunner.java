@@ -97,7 +97,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         } catch (BuildException e) {
             if (announce != null) {
-                announce.getLocal().send("Build failure", e.getMessage());
+                announce.getLocal().send("Build failure", e.getCause().getMessage());
             }
         }
 
