@@ -66,27 +66,13 @@ public class WatchTask extends DefaultTask {
                         return;
                     }
 
+                    Date timestamp = new Date();
                     Path dir = (Path) key.watchable();
 
                     if (getLogger().isDebugEnabled()) {
                         getLogger().debug("[TAKE ] WatchKey@{} for \"{}\".",
                                           System.identityHashCode(key),
                                           projectPath.relativize(dir));
-                    }
-
-                    if (!Files.exists(dir)) {
-                        getLogger().lifecycle("");
-                        getLogger().lifecycle(
-                                "----------------------------------------"
-                                + "----------------------------------------");
-                        getLogger().lifecycle(" \033[36m{}\033[39m",
-                                              new Date());
-                        getLogger().lifecycle(" Directory \"{}\" was deleted.",
-                                              projectPath.relativize(dir));
-                        getLogger().lifecycle(
-                                "----------------------------------------"
-                                + "----------------------------------------");
-                        continue;
                     }
 
                     for (WatchEvent<?> event : key.pollEvents()) {
@@ -108,11 +94,12 @@ public class WatchTask extends DefaultTask {
                         if (Files.isDirectory(path)) {
 
                             if (event.kind() == ENTRY_CREATE) {
+
                                 getLogger().lifecycle("");
                                 getLogger().lifecycle(
                                         "----------------------------------------"
                                         + "----------------------------------------");
-                                getLogger().lifecycle(" \033[36m{}\033[39m", new Date());
+                                getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
 
                                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -134,15 +121,32 @@ public class WatchTask extends DefaultTask {
                             continue;
                         }
 
+                        if (event.kind() == ENTRY_DELETE && service.isWatching(path)) {
+
+                            getLogger().lifecycle("");
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
+                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
+                            getLogger().lifecycle(" Directory \"{}\" was deleted.",
+                                                projectPath.relativize(path));
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
+
+                            service.unregister(path);
+                            continue;
+                        }
+
                         if (addWatchTarget(actualTargets, path)) {
                             getLogger().lifecycle("");
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
-                            getLogger().lifecycle(" \033[36m{}\033[39m",
-                                                         new Date(path.toFile().lastModified()));
+                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
                             getLogger().lifecycle(" File \"{}\" was {}.",
-                                                         projectPath.relativize(path), toString(event.kind()));
+                                                  projectPath.relativize(path),
+                                                  toString(event.kind()));
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
@@ -160,7 +164,7 @@ public class WatchTask extends DefaultTask {
 
                     key.reset();
 
-                    if (!key.isValid()) {
+                    if (!key.isValid() && Files.exists(dir)) {
                         getLogger().error("WatchKey@{} for \"{}\" is not valid.",
                                           System.identityHashCode(key),
                                           projectPath.relativize(dir));
@@ -181,9 +185,8 @@ public class WatchTask extends DefaultTask {
                 continue;
             }
 
-            if (actualTargets.add(target)) {
-                added = true;
-            }
+            actualTargets.add(target);
+            added = true;
         }
 
         return added;
