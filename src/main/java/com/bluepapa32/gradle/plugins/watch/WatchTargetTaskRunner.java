@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.LogLevel;
-import org.gradle.api.plugins.announce.AnnouncePluginExtension;
-import org.gradle.api.plugins.announce.BuildAnnouncementsPlugin;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
@@ -22,13 +20,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
     private ProjectConnection connection;
 
-    private AnnouncePluginExtension announce;
-
     public WatchTargetTaskRunner(Project project) {
-
-        if (!project.getPlugins().hasPlugin(BuildAnnouncementsPlugin.class)) {
-            announce = project.getExtensions().findByType(AnnouncePluginExtension.class);
-        }
 
         final PrintStream out = System.out;
 
@@ -91,14 +83,9 @@ public class WatchTargetTaskRunner implements AutoCloseable {
         try {
 
             launcher.run();
-            if (announce != null) {
-                announce.getLocal().send("Build success", (taskNum[0] - 1) + " tasks executed");
-            }
 
         } catch (BuildException e) {
-            if (announce != null) {
-                announce.getLocal().send("Build failure", e.getCause().getMessage());
-            }
+            // ignore...
         }
 
         for (WatchTarget target : targets) {
