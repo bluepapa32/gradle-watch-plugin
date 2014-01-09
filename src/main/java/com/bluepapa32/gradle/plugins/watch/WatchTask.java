@@ -75,20 +75,6 @@ public class WatchTask extends DefaultTask {
                                           projectPath.relativize(dir));
                     }
 
-                    if (!Files.exists(dir)) {
-                        getLogger().lifecycle("");
-                        getLogger().lifecycle(
-                                "----------------------------------------"
-                                + "----------------------------------------");
-                        getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
-                        getLogger().lifecycle(" Directory \"{}\" was deleted.",
-                                              projectPath.relativize(dir));
-                        getLogger().lifecycle(
-                                "----------------------------------------"
-                                + "----------------------------------------");
-                        continue;
-                    }
-
                     for (WatchEvent<?> event : key.pollEvents()) {
 
                         if (event.kind() == OVERFLOW) {
@@ -108,6 +94,7 @@ public class WatchTask extends DefaultTask {
                         if (Files.isDirectory(path)) {
 
                             if (event.kind() == ENTRY_CREATE) {
+
                                 getLogger().lifecycle("");
                                 getLogger().lifecycle(
                                         "----------------------------------------"
@@ -131,6 +118,23 @@ public class WatchTask extends DefaultTask {
                                 service.register(path);
                             }
 
+                            continue;
+                        }
+
+                        if (event.kind() == ENTRY_DELETE && service.isWatching(path)) {
+
+                            getLogger().lifecycle("");
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
+                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
+                            getLogger().lifecycle(" Directory \"{}\" was deleted.",
+                                                projectPath.relativize(path));
+                            getLogger().lifecycle(
+                                    "----------------------------------------"
+                                    + "----------------------------------------");
+
+                            service.unregister(path);
                             continue;
                         }
 
@@ -160,7 +164,7 @@ public class WatchTask extends DefaultTask {
 
                     key.reset();
 
-                    if (!key.isValid()) {
+                    if (!key.isValid() && Files.exists(dir)) {
                         getLogger().error("WatchKey@{} for \"{}\" is not valid.",
                                           System.identityHashCode(key),
                                           projectPath.relativize(dir));
