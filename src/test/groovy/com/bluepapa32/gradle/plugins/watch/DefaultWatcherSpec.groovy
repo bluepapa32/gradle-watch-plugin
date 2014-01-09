@@ -193,6 +193,26 @@ class DefaultWatcherSpec extends GradlePluginSpecification {
         watcher.close()
         then:
         watcher.paths.isEmpty()
+
+        when:
+        watcher.register(file("src/main/java").toPath())
+        then:
+        thrown(java.nio.file.ClosedWatchServiceException)
+
+        when:
+        watcher.unregister(file("src/main/java").toPath())
+        then:
+        thrown(java.nio.file.ClosedWatchServiceException)
+
+        when:
+        watcher.isWatching(file("src/main/java").toPath())
+        then:
+        notThrown(java.nio.file.ClosedWatchServiceException)
+
+        when:
+        watcher.take()
+        then:
+        thrown(java.nio.file.ClosedWatchServiceException)
     }
 }
 

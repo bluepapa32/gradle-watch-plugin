@@ -1,6 +1,7 @@
 package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -39,6 +40,8 @@ public class DefaultWatcher implements Watcher {
 
     private Map<Path, WatchKey> paths;
 
+    private boolean closed;
+
     public DefaultWatcher() throws IOException {
         this.service = FileSystems.getDefault().newWatchService();
         this.paths   = new LinkedHashMap<>();
@@ -50,6 +53,10 @@ public class DefaultWatcher implements Watcher {
 
     @Override
     public void register(Path path) throws IOException {
+
+        if (closed) {
+            throw new ClosedWatchServiceException();
+        }
 
         if (!Files.exists(path)) {
             throw new java.nio.file.NoSuchFileException(path.toString());
@@ -84,6 +91,10 @@ public class DefaultWatcher implements Watcher {
 
     public void unregister(Path path) throws IOException {
 
+        if (closed) {
+            throw new ClosedWatchServiceException();
+        }
+
         Iterator<Entry<Path, WatchKey>> it = paths.entrySet().iterator();
         while (it.hasNext()) {
 
@@ -117,10 +128,16 @@ public class DefaultWatcher implements Watcher {
     }
 
     public WatchKey take() throws InterruptedException {
+
+        if (closed) {
+            throw new ClosedWatchServiceException();
+        }
+
         return service.take();
     }
 
     public void close() throws IOException {
+        closed = true;
         paths.clear();
         service.close();
     }
