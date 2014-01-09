@@ -8,6 +8,7 @@ import org.gradle.api.logging.LogLevel;
 import org.gradle.api.plugins.announce.AnnouncePluginExtension;
 import org.gradle.api.plugins.announce.BuildAnnouncementsPlugin;
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressEvent;
@@ -87,18 +88,18 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         long timestamp = System.currentTimeMillis();
 
-        launcher.run(new ResultHandler<Void>() {
-            public void onComplete(Void result) {
-                if (announce != null) {
-                    announce.getLocal().send("Build success", (taskNum[0] - 1) + " tasks executed");
-                }
+        try {
+
+            launcher.run();
+            if (announce != null) {
+                announce.getLocal().send("Build success", (taskNum[0] - 1) + " tasks executed");
             }
-            public void onFailure(GradleConnectionException failure) {
-                if (announce != null) {
-                    announce.getLocal().send("Build failure", failure.getCause().getMessage());
-                }
+
+        } catch (BuildException e) {
+            if (announce != null) {
+                announce.getLocal().send("Build failure", e.getMessage());
             }
-        });
+        }
 
         for (WatchTarget target : targets) {
             target.setExecutedAt(timestamp);
