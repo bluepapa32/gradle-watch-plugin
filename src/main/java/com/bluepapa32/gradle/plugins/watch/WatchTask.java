@@ -99,7 +99,7 @@ public class WatchTask extends DefaultTask {
                                 getLogger().lifecycle(
                                         "----------------------------------------"
                                         + "----------------------------------------");
-                                getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
+                                getLogger().lifecycle(" {}", timestamp);
 
                                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -127,7 +127,7 @@ public class WatchTask extends DefaultTask {
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
-                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
+                            getLogger().lifecycle(" {}", timestamp);
                             getLogger().lifecycle(" Directory \"{}\" was deleted.",
                                                 projectPath.relativize(path));
                             getLogger().lifecycle(
@@ -143,7 +143,7 @@ public class WatchTask extends DefaultTask {
                             getLogger().lifecycle(
                                     "----------------------------------------"
                                     + "----------------------------------------");
-                            getLogger().lifecycle(" \033[36m{}\033[39m", timestamp);
+                            getLogger().lifecycle(" {}", timestamp);
                             getLogger().lifecycle(" File \"{}\" was {}.",
                                                   projectPath.relativize(path),
                                                   toString(event.kind()));

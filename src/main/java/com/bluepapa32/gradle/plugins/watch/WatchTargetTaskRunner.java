@@ -49,7 +49,7 @@ public class WatchTargetTaskRunner implements AutoCloseable {
             .run(new ResultHandler<Void>() {
                 public void onComplete(Void result) {
                     System.setOut(out);
-                    out.println(" \033[32mOK\033[39m");
+                    out.println(" OK");
                 }
                 public void onFailure(GradleConnectionException failure) {
                 }
