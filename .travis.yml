@@ -1,0 +1,19 @@
+language: java
+jdk:
+  - oraclejdk7
+install:
+  - true
+script:
+  - TERM=dumb ./gradlew build
+after_success:
+  - '[ "$TRAVIS_BRANCH" == "master" ] && TERM=dumb ./gradlew release'
+after_script:
+  - ./gradlew --stop
+env:
+  global:
+    - secure: "Hilv64oxmocuwOO+bKSpP17+GRc/cp9TMvmccAht7h1z6nO3RoJEip2kR2Yb7dK7y3dbCXVHlFlYA/Z9057u/6O5eJUNuzf1zAEn4618Zg8KxSZxIGVKOSSyfHJIhgNBc+Or/SdV1S6Y6Yao0SsKg8OA4z5lZ7+WAOya7Fy22Yk="
+    - secure: "mGPKmNAYR1cgOATVuy3HuWkCakvrXCWqDcOLY2eygEx3S+Urfw+QLJsOJ//eoRnDt0DG17TlpTyoHGBelZ48aNcF5pUYbJNsXn5zH2tbwL0KWsgbKUT0IEilZB7F2lH8jPL4dNnyvw2CYpGrvuXub6S9NO8JuUu31QghgTPT5QU="
+    - secure: "dilvP6ULq3fRUB+ekzuKKt8J2htPsqoQOskcjcunpGwV0UyhxwgAkYxFk9x/mLVaUUIJUG6h3M0SOmjoD70XDkX/Mv2h/0EJ6UdaqsOImLP3qOxEQ8qfl0W+7vdIcu9l6dc15v+PVS+L9BXzEW0T9LKSytPX/7hUcMIUrJNUy+c="
+    - secure: "j0L3M7UOixT4XzLZOkGyJn19rNPfasinIo81gLMbPdHIurrlQJ6FNoaoHo5mB1u1PoJkIxgKCnBh3ojhamF82oZNks6SwuRTYzUnwkrPPViw54p8SI0KnNEp/mPgTZ0q9v7+GN+WwlIbSEY5UTXWQeJKPh/9MCxF8/VUrGb8BWE="
+    - GIT_AUTHOR_NAME=$GIT_COMMITTER_NAME
+    - GIT_AUTHOR_EMAIL=$GIT_COMMITTER_EMAIL

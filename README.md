@@ -1,7 +1,14 @@
-Gradle Watch Plugin 0.1.0
+Gradle Watch Plugin 0.1.1 [![Build Status](https://travis-ci.org/bluepapa32/gradle-watch-plugin.png?branch=main)](https://travis-ci.org/bluepapa32/gradle-watch-plugin)
 =========================
 
 Run predefined tasks whenever watched file patterns are added, changed or deleted.
+
+
+Requirements
+------------
+
+- Oracle JDK7+
+- Gradle 1.9+
 
 
 Usage
@@ -29,9 +36,9 @@ The Watch plugin adds the following tasks to the project.
 
 Table 1. Watch plugin - tasks
 
-|Task name|Depends on|Type     |Description                                                                       |
-|:-------:|:--------:|:-------:|----------------------------------------------------------------------------------|
-|watch    |-         |WatchTask|Run predefined tasks whenever watched file patterns are added, changed or deleted.|
+|Task name       |Depends on|Type     |Description                                                                       |
+|:--------------:|:--------:|:-------:|----------------------------------------------------------------------------------|
+|watch           |-         |WatchTask|Run predefined tasks whenever watched file patterns are added, changed or deleted.|
 
 
 Configuration
