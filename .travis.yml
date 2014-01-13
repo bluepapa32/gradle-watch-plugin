@@ -4,7 +4,7 @@ jdk:
 install:
   - TERM=dumb ./gradlew build 
 script:
-  - [ "$TRAVIS_BRANCH" == "master" ] && TERM=dumb ./gradlew release
+  - '[ "$TRAVIS_BRANCH" == "master" ] && TERM=dumb ./gradlew release'
 after_script:
   - ./gradlew --stop
 env:
