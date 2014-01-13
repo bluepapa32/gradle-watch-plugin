@@ -24,6 +24,16 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+task release(dependsOn: uploadArchives) << {
+    exec { commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'" }
+    println "Created a new tag 'v${version}'"
+
+    def REPOSITORY = System.env['REPOSITORY']
+    if (REPOSITORY) {
+        exec { commandLine 'git', 'push', '--tags', '-q', REPOSITORY }
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 artifacts {
@@ -42,11 +52,33 @@ eclipse.classpath.file.whenMerged { classpath ->
     classpath.entries.findAll { e -> e.kind == 'src' }*.excludes = [ '**/.DS_Store' ]
 }
 
-if (hasProperty('mavenRepository')) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: uri(mavenRepository))
+uploadArchives {
+
+    repositories {
+        mavenDeployer {
+            repository(url: uri(mavenRepository))
+        }
+    }
+
+    def MAVEN_REPOSITORY = System.env['MAVEN_REPOSITORY']
+    if (MAVEN_REPOSITORY) {
+
+        doFirst {
+            exec { commandLine 'git', 'clone', '-q', MAVEN_REPOSITORY, mavenRepository }
+        }
+
+        doLast {
+            exec {
+                workingDir mavenRepository
+                commandLine 'git', 'add', '--all'
+            }
+            exec {
+                workingDir mavenRepository
+                commandLine 'git', 'commit', '-m', "Release ${project.name} ${project.version}"
+            }
+            exec {
+                workingDir mavenRepository
+                commandLine 'git', 'push', '--all', '-q', MAVEN_REPOSITORY
             }
         }
     }
