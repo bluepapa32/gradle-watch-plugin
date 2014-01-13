@@ -2,8 +2,16 @@ language: java
 jdk:
   - oraclejdk7
 install:
-  - true
-script:
   - TERM=dumb ./gradlew build 
+script:
+  - [ "$TRAVIS_BRANCH" == "master" ] && TERM=dumb ./gradlew release
 after_script:
   - ./gradlew --stop
+env:
+  global:
+    - secure: "Hilv64oxmocuwOO+bKSpP17+GRc/cp9TMvmccAht7h1z6nO3RoJEip2kR2Yb7dK7y3dbCXVHlFlYA/Z9057u/6O5eJUNuzf1zAEn4618Zg8KxSZxIGVKOSSyfHJIhgNBc+Or/SdV1S6Y6Yao0SsKg8OA4z5lZ7+WAOya7Fy22Yk="
+    - secure: "mGPKmNAYR1cgOATVuy3HuWkCakvrXCWqDcOLY2eygEx3S+Urfw+QLJsOJ//eoRnDt0DG17TlpTyoHGBelZ48aNcF5pUYbJNsXn5zH2tbwL0KWsgbKUT0IEilZB7F2lH8jPL4dNnyvw2CYpGrvuXub6S9NO8JuUu31QghgTPT5QU="
+    - secure: "qCF7B2pAomagNXhNK6pzADpyGpNUnB/sDI1gvpbsi7oY3QL67Nc+bmjXjVnCrWYmn+tRRXub8l1/BTmAHPvtoY5h7ethSndxCwa62lUASn2wv8vPQlqxnjvNE594xrc1Mf8Fvjps9uHTUqQyF5AT9uRYsXQcg8EQKsTMjBqdaMM="
+    - secure: "ohpuef+jtU6ePw+LFGK//5KfO6RMNqZ59m472I6cFFJHENMUwm9Fr1vfZOb8ri8cwgbmEbFYujr8fLrFwnpklXfuzlcS4J5Ww4dADb7owQWWPacNoF0vEU2DqJYMk6JkNV09Y8GZ7f4CeZoUwV+T1ge0A8QS4mRlZ4rlxjWv4QA="
+    - GIT_AUTHOR_NAME=$GIT_COMMITTER_NAME
+    - GIT_AUTHOR_EMAIL=$GIT_COMMITTER_EMAIL
