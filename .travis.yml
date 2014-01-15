@@ -17,3 +17,7 @@ env:
     - secure: "j0L3M7UOixT4XzLZOkGyJn19rNPfasinIo81gLMbPdHIurrlQJ6FNoaoHo5mB1u1PoJkIxgKCnBh3ojhamF82oZNks6SwuRTYzUnwkrPPViw54p8SI0KnNEp/mPgTZ0q9v7+GN+WwlIbSEY5UTXWQeJKPh/9MCxF8/VUrGb8BWE="
     - GIT_AUTHOR_NAME=$GIT_COMMITTER_NAME
     - GIT_AUTHOR_EMAIL=$GIT_COMMITTER_EMAIL
+branches:
+  only:
+    - master
+    - develop
