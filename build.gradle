@@ -7,6 +7,10 @@ apply plugin: 'eclipse'
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
 
+ext {
+    env = System.env
+}
+
 repositories {
     mavenCentral()
 }
@@ -28,9 +32,8 @@ task release(dependsOn: uploadArchives) << {
     exec { commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'" }
     println "Created a new tag 'v${version}'"
 
-    def REPOSITORY = System.env['REPOSITORY']
-    if (REPOSITORY) {
-        exec { commandLine 'git', 'push', '--tags', '-q', REPOSITORY }
+    if (env.REPOSITORY) {
+        exec { commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY }
     }
 }
 
@@ -60,11 +63,10 @@ uploadArchives {
         }
     }
 
-    def MAVEN_REPOSITORY = System.env['MAVEN_REPOSITORY']
-    if (MAVEN_REPOSITORY) {
+    if (env.MAVEN_REPOSITORY) {
 
         doFirst {
-            exec { commandLine 'git', 'clone', '-q', MAVEN_REPOSITORY, mavenRepository }
+            exec { commandLine 'git', 'clone', '-q', env.MAVEN_REPOSITORY, mavenRepository }
         }
 
         doLast {
@@ -78,8 +80,9 @@ uploadArchives {
             }
             exec {
                 workingDir mavenRepository
-                commandLine 'git', 'push', '--all', '-q', MAVEN_REPOSITORY
+                commandLine 'git', 'push', '--all', '-q', env.MAVEN_REPOSITORY
             }
         }
     }
 }
+
