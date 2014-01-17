@@ -59,8 +59,8 @@ uploadArchives {
 
     repositories {
         mavenDeployer {
-            repository(url: uri("${mavenRepository}/releases"))
-            snapshotRepository(url: uri("${mavenRepository}/snapshots"))
+            repository         url: uri("${mavenRepository}/releases")
+            snapshotRepository url: uri("${mavenRepository}/snapshots")
 
             pom {
                 project {
