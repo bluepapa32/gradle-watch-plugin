@@ -59,7 +59,7 @@ uploadArchives {
 
     repositories {
         mavenDeployer {
-            repository(url: uri(mavenRepository))
+            repository(url: uri("${mavenRepository}/releases"))
 
             pom {
                 project {
