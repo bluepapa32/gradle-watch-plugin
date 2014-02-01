@@ -6,8 +6,8 @@ install:
 script:
   - TERM=dumb ./gradlew build
 after_success:
-  - '[ "$TRAVIS_BRANCH" == "master" ]  && TERM=dumb ./gradlew release'
-  - '[ "$TRAVIS_BRANCH" == "develop" ] && TERM=dumb ./gradlew uploadArchives'
+  - '[ "$TRAVIS_BRANCH" == "master" ]  && TERM=dumb ./gradlew release -x jar -x sourcesJar'
+  - '[ "$TRAVIS_BRANCH" == "develop" ] && TERM=dumb ./gradlew uploadArchives -x jar -x sourcesJar'
 after_script:
   - ./gradlew --stop
 
