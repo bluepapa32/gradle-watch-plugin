@@ -9,6 +9,7 @@ apply plugin: 'codenarc'
 
 ext {
     env = System.env
+    snapshot = (version ==~ /.*-SNAPSHOT/)
 }
 
 repositories {
@@ -28,15 +29,20 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task release(dependsOn: uploadArchives) << {
-    exec { commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'" }
-    println "Created a new tag 'v${version}'"
-
-    if (env.REPOSITORY) {
-        exec { commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY }
-    }
+task tag(type: Exec) {
+    onlyIf { !snapshot }
+    commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'"
+    doLast { println "Created a new tag 'v${version}'" }
+    mustRunAfter uploadArchives
 }
 
+task pushTag(type: Exec) {
+    onlyIf { !snapshot && env.REPOSITORY }
+    commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY
+    mustRunAfter tag
+}
+
+task release(dependsOn: [uploadArchives, tag, pushTag])
 
 // -----------------------------------------------------------------------------
 artifacts {
