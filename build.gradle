@@ -6,6 +6,7 @@ apply plugin: 'eclipse'
 
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
+apply plugin: 'pmd'
 
 ext {
     env = System.env
