@@ -6,8 +6,8 @@ install:
 script:
   - TERM=dumb ./gradlew build
 after_success:
-  - '[ "$TRAVIS_BRANCH" == "master" ]  && TERM=dumb ./gradlew release -x jar -x sourcesJar'
-  - '[ "$TRAVIS_BRANCH" == "develop" ] && TERM=dumb ./gradlew uploadArchives -x jar -x sourcesJar'
+  - '[ "$TRAVIS_BRANCH" == "master" ]  && TERM=dumb ./gradlew publish -x jar -x sourcesJar'
+  - '[ "$TRAVIS_BRANCH" == "develop" ] && TERM=dumb ./gradlew publish -x jar -x sourcesJar'
 after_script:
   - ./gradlew --stop
 
@@ -37,6 +37,11 @@ env:
         j0L3M7UOixT4XzLZOkGyJn19rNPfasinIo81gLMbPdHIurrlQJ6FNoaoHo5m
         B1u1PoJkIxgKCnBh3ojhamF82oZNks6SwuRTYzUnwkrPPViw54p8SI0KnNEp
         /mPgTZ0q9v7+GN+WwlIbSEY5UTXWQeJKPh/9MCxF8/VUrGb8BWE=
+
+    - secure: |-
+        iVcomuVu83nmlzbpoucubIZwoYVFw1sZ2uV1okG3/YN7clAtCzbbamCdbU5N
+        cXQpN9S3xyGcg4ONGYn4RfyL+aWZxVQNRQ27fUj/Ys7gSlH3KrG2L/7BNKDD
+        vXY3O5CdzaKXOBbfIkihxgJZqRQrzEiW0/PIEGNFPWUEEBqP788=
 
     - GIT_AUTHOR_NAME=$GIT_COMMITTER_NAME
     - GIT_AUTHOR_EMAIL=$GIT_COMMITTER_EMAIL
