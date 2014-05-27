@@ -8,7 +8,7 @@ Requirements
 ------------
 
 - Oracle JDK7+
-- Gradle 1.9+
+- Gradle 1.9 - 1.11
 
 
 Usage
