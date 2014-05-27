@@ -21,8 +21,12 @@ Example 1. Using the Watch plugin
 build.gradle
 ~~~
 buildscript {
-    repositories { maven { url 'http://bluepapa32.github.io/maven/snapshots/' } }
-    dependencies { classpath 'com.bluepapa32.gradle.plugins:gradle-watch-plugin:0.2.0-SNAPSHOT' }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.0'
+    }
 }   
 
 apply plugin: 'watch'
