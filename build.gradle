@@ -1,20 +1,42 @@
 defaultTasks 'clean', 'build'
 
+
+// -----------------------------------------------------------------------------
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3' }
+}
+
+
+// -----------------------------------------------------------------------------
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
+//apply plugin: 'pmd'
 
+apply plugin: 'maven-publish'
+
+
+// -----------------------------------------------------------------------------
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    compile     gradleApi()
+    compile     localGroovy()
     testCompile ('org.spockframework:spock-core:0.7-groovy-1.8') { exclude module: 'groovy-all' }
+}
+
+
+// -----------------------------------------------------------------------------
+ext {
+    env = System.env
+    snapshot = (version ==~ /.*-SNAPSHOT/)
+    dryRun = project.hasProperty('dryRun') ? project.dryRun : false
 }
 
 
@@ -24,15 +46,20 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task release(dependsOn: uploadArchives) << {
-    exec { commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'" }
-    println "Created a new tag 'v${version}'"
-
-    def REPOSITORY = System.env['REPOSITORY']
-    if (REPOSITORY) {
-        exec { commandLine 'git', 'push', '--tags', '-q', REPOSITORY }
-    }
+task tag(type: Exec) {
+    onlyIf { !snapshot && !dryRun }
+    commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'"
+    doLast { println "Created a new tag 'v${version}'" }
+    mustRunAfter jar
 }
+
+task pushTag(type: Exec) {
+    onlyIf { !snapshot && !dryRun && env.REPOSITORY }
+    commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY
+    mustRunAfter tag
+}
+
+publish.dependsOn 'generatePomFileForMavenPublication', 'jar', 'sourcesJar', 'tag', 'pushTag'
 
 
 // -----------------------------------------------------------------------------
@@ -52,34 +79,67 @@ eclipse.classpath.file.whenMerged { classpath ->
     classpath.entries.findAll { e -> e.kind == 'src' }*.excludes = [ '**/.DS_Store' ]
 }
 
-uploadArchives {
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
 
-    repositories {
-        mavenDeployer {
-            repository(url: uri(mavenRepository))
-        }
-    }
+            pom.withXml {
 
-    def MAVEN_REPOSITORY = System.env['MAVEN_REPOSITORY']
-    if (MAVEN_REPOSITORY) {
+                asNode().children().last() + {
 
-        doFirst {
-            exec { commandLine 'git', 'clone', '-q', MAVEN_REPOSITORY, mavenRepository }
-        }
+                    resolveStrategy = Closure.DELEGATE_FIRST
 
-        doLast {
-            exec {
-                workingDir mavenRepository
-                commandLine 'git', 'add', '--all'
-            }
-            exec {
-                workingDir mavenRepository
-                commandLine 'git', 'commit', '-m', "Release ${project.name} ${project.version}"
-            }
-            exec {
-                workingDir mavenRepository
-                commandLine 'git', 'push', '--all', '-q', MAVEN_REPOSITORY
+                    name        project.description
+                    description project.description
+                    url         'https://github.com/bluepapa32/gradle-watch-plugin'
+
+                    licenses {
+                        license {
+                            name         'The Apache Software License, Version 2.0'
+                            url          'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer { id 'bluepapa32' }
+                    }
+
+                    scm {
+                        url                 'git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        connection          'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        developerConnection 'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
+                    }
+                }
             }
         }
     }
 }
+
+
+// -----------------------------------------------------------------------------
+if (env.BINTRAY_API_KEY) {
+
+    apply plugin: 'bintray'
+
+    bintray {
+        user         = 'bluepapa32'
+        key          = env.BINTRAY_API_KEY
+        publications = ['maven']
+        pkg {
+            repo     = 'gradle-plugins'
+            name     = 'gradle-watch-plugin'
+            licenses = ['Apache-2.0']
+        }
+        dryRun = project.dryRun || snapshot
+    }
+
+    bintrayUpload {
+        dependsOn jar, sourcesJar
+    }
+
+    publish.dependsOn 'bintrayUpload'
+}
+
