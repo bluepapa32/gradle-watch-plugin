@@ -1,5 +1,14 @@
 defaultTasks 'clean', 'build'
 
+
+// -----------------------------------------------------------------------------
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3' }
+}
+
+
+// -----------------------------------------------------------------------------
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
@@ -8,11 +17,10 @@ apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
 apply plugin: 'pmd'
 
-ext {
-    env = System.env
-    snapshot = (version ==~ /.*-SNAPSHOT/)
-}
+apply plugin: 'maven-publish'
 
+
+// -----------------------------------------------------------------------------
 repositories {
     mavenCentral()
 }
@@ -25,25 +33,34 @@ dependencies {
 
 
 // -----------------------------------------------------------------------------
+ext {
+    env = System.env
+    snapshot = (version ==~ /.*-SNAPSHOT/)
+    dryRun = project.hasProperty('dryRun') ? project.dryRun : false
+}
+
+
+// -----------------------------------------------------------------------------
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
 }
 
 task tag(type: Exec) {
-    onlyIf { !snapshot }
+    onlyIf { !snapshot && !dryRun }
     commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'"
     doLast { println "Created a new tag 'v${version}'" }
-    mustRunAfter uploadArchives
+    mustRunAfter jar
 }
 
 task pushTag(type: Exec) {
-    onlyIf { !snapshot && env.REPOSITORY }
+    onlyIf { !snapshot && !dryRun && env.REPOSITORY }
     commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY
     mustRunAfter tag
 }
 
-task release(dependsOn: [uploadArchives, tag, pushTag])
+publish.dependsOn 'generatePomFileForMavenPublication', 'jar', 'sourcesJar', 'tag', 'pushTag'
+
 
 // -----------------------------------------------------------------------------
 artifacts {
@@ -62,23 +79,22 @@ eclipse.classpath.file.whenMerged { classpath ->
     classpath.entries.findAll { e -> e.kind == 'src' }*.excludes = [ '**/.DS_Store' ]
 }
 
-uploadArchives {
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
 
-    repositories {
-        mavenDeployer {
-            repository         url: uri("${mavenRepository}/releases")
-            snapshotRepository url: uri("${mavenRepository}/snapshots")
+            pom.withXml {
 
-            pom {
-                project {
+                asNode().children().last() + {
+
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
                     name        project.description
                     description project.description
                     url         'https://github.com/bluepapa32/gradle-watch-plugin'
-                    scm {
-                        url                 'git@github.com:bluepapa32/gradle-watch-plugin.git'
-                        connection          'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
-                        developerConnection 'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
-                    }
+
                     licenses {
                         license {
                             name         'The Apache Software License, Version 2.0'
@@ -86,36 +102,44 @@ uploadArchives {
                             distribution 'repo'
                         }
                     }
+
                     developers {
-                        developer {
-                            id 'bluepapa32'
-                        }
+                        developer { id 'bluepapa32' }
+                    }
+
+                    scm {
+                        url                 'git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        connection          'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        developerConnection 'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
                     }
                 }
             }
         }
     }
+}
 
-    if (env.MAVEN_REPOSITORY) {
 
-        doFirst {
-            exec { commandLine 'git', 'clone', '-q', env.MAVEN_REPOSITORY, mavenRepository }
+// -----------------------------------------------------------------------------
+if (env.BINTRAY_API_KEY) {
+
+    apply plugin: 'bintray'
+
+    bintray {
+        user         = 'bluepapa32'
+        key          = env.BINTRAY_API_KEY
+        publications = ['maven']
+        pkg {
+            repo     = 'gradle-plugins'
+            name     = 'gradle-watch-plugin'
+            licenses = ['Apache-2.0']
         }
-
-        doLast {
-            exec {
-                workingDir  mavenRepository
-                commandLine 'git', 'add', '--all'
-            }
-            exec {
-                workingDir  mavenRepository
-                commandLine 'git', 'commit', '-m', "Release ${project.name} ${project.version}"
-            }
-            exec {
-                workingDir  mavenRepository
-                commandLine 'git', 'push', '--all', '-q', env.MAVEN_REPOSITORY
-            }
-        }
+        dryRun = project.dryRun || snapshot
     }
+
+    bintrayUpload {
+        dependsOn jar, sourcesJar
+    }
+
+    publish.dependsOn 'bintrayUpload'
 }
 
