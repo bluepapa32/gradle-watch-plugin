@@ -8,7 +8,7 @@ Requirements
 ------------
 
 - Oracle JDK7+
-- Gradle 1.9+
+- Gradle 1.9 - 1.11
 
 
 Usage
@@ -21,8 +21,8 @@ Example 1. Using the Watch plugin
 build.gradle
 ~~~
 buildscript {
-    repositories { maven { url 'http://bluepapa32.github.io/maven/' } } 
-    dependencies { classpath 'com.bluepapa32.gradle.plugins:gradle-watch-plugin:0.1.0' }
+    repositories { maven { url 'http://bluepapa32.github.io/maven/snapshots/' } }
+    dependencies { classpath 'com.bluepapa32.gradle.plugins:gradle-watch-plugin:0.2.0-SNAPSHOT' }
 }   
 
 apply plugin: 'watch'

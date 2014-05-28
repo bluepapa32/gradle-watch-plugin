@@ -6,14 +6,20 @@ apply plugin: 'eclipse'
 
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
+apply plugin: 'pmd'
+
+ext {
+    env = System.env
+    snapshot = (version ==~ /.*-SNAPSHOT/)
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    compile     gradleApi()
+    compile     localGroovy()
     testCompile ('org.spockframework:spock-core:0.7-groovy-1.8') { exclude module: 'groovy-all' }
 }
 
@@ -24,16 +30,20 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task release(dependsOn: uploadArchives) << {
-    exec { commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'" }
-    println "Created a new tag 'v${version}'"
-
-    def REPOSITORY = System.env['REPOSITORY']
-    if (REPOSITORY) {
-        exec { commandLine 'git', 'push', '--tags', '-q', REPOSITORY }
-    }
+task tag(type: Exec) {
+    onlyIf { !snapshot }
+    commandLine 'git', 'tag', "v${version}", '-m', "'Release version ${version}'"
+    doLast { println "Created a new tag 'v${version}'" }
+    mustRunAfter uploadArchives
 }
 
+task pushTag(type: Exec) {
+    onlyIf { !snapshot && env.REPOSITORY }
+    commandLine 'git', 'push', '--tags', '-q', env.REPOSITORY
+    mustRunAfter tag
+}
+
+task release(dependsOn: [uploadArchives, tag, pushTag])
 
 // -----------------------------------------------------------------------------
 artifacts {
@@ -56,30 +66,56 @@ uploadArchives {
 
     repositories {
         mavenDeployer {
-            repository(url: uri(mavenRepository))
+            repository         url: uri("${mavenRepository}/releases")
+            snapshotRepository url: uri("${mavenRepository}/snapshots")
+
+            pom {
+                project {
+                    name        project.description
+                    description project.description
+                    url         'https://github.com/bluepapa32/gradle-watch-plugin'
+                    scm {
+                        url                 'git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        connection          'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
+                        developerConnection 'scm:git:git@github.com:bluepapa32/gradle-watch-plugin.git'
+                    }
+                    licenses {
+                        license {
+                            name         'The Apache Software License, Version 2.0'
+                            url          'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'bluepapa32'
+                        }
+                    }
+                }
+            }
         }
     }
 
-    def MAVEN_REPOSITORY = System.env['MAVEN_REPOSITORY']
-    if (MAVEN_REPOSITORY) {
+    if (env.MAVEN_REPOSITORY) {
 
         doFirst {
-            exec { commandLine 'git', 'clone', '-q', MAVEN_REPOSITORY, mavenRepository }
+            exec { commandLine 'git', 'clone', '-q', env.MAVEN_REPOSITORY, mavenRepository }
         }
 
         doLast {
             exec {
-                workingDir mavenRepository
+                workingDir  mavenRepository
                 commandLine 'git', 'add', '--all'
             }
             exec {
-                workingDir mavenRepository
+                workingDir  mavenRepository
                 commandLine 'git', 'commit', '-m', "Release ${project.name} ${project.version}"
             }
             exec {
-                workingDir mavenRepository
-                commandLine 'git', 'push', '--all', '-q', MAVEN_REPOSITORY
+                workingDir  mavenRepository
+                commandLine 'git', 'push', '--all', '-q', env.MAVEN_REPOSITORY
             }
         }
     }
 }
+
