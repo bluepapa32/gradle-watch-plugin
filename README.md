@@ -1,4 +1,4 @@
-Gradle Watch Plugin 0.1.2 [![Build Status](https://travis-ci.org/bluepapa32/gradle-watch-plugin.png?branch=master)](https://travis-ci.org/bluepapa32/gradle-watch-plugin)
+Gradle Watch Plugin 0.1.3 [![Build Status](https://travis-ci.org/bluepapa32/gradle-watch-plugin.png?branch=master)](https://travis-ci.org/bluepapa32/gradle-watch-plugin)
 =========================
 
 Run predefined tasks whenever watched file patterns are added, changed or deleted.
@@ -8,7 +8,7 @@ Requirements
 ------------
 
 - Oracle JDK7+
-- Gradle 1.9 - 1.11
+- Gradle 1.9+
 
 
 Usage
@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.2'
+        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.3'
     }
 }   
 

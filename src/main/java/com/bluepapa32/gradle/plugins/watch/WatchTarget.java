@@ -2,6 +2,8 @@ package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ import org.gradle.api.file.DirectoryTree;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RelativePath;
-import org.gradle.api.internal.file.DefaultFileTreeElement;
+import org.gradle.api.file.FileTreeElement;
 
 import static java.util.Collections.addAll;
 
@@ -68,7 +70,7 @@ public class WatchTarget implements Named {
 
     boolean isTarget(Path path) {
 
-        File f = path.toFile();
+        final File f = path.toFile();
 
         long lastModified = f.lastModified();
         if (0 < lastModified && lastModified <= executedAt) {
@@ -87,9 +89,21 @@ public class WatchTarget implements Named {
                 }
 
                 String[] segments = toStringList(dir.relativize(path)).toArray(new String[0]);
+                final RelativePath relativePath = new RelativePath(true, segments);
 
-                return dirTree.getPatterns().getAsSpec().isSatisfiedBy(
-                        new DefaultFileTreeElement(f, new RelativePath(true, segments)));
+                return dirTree.getPatterns().getAsSpec().isSatisfiedBy(new FileTreeElement() {
+                    public void copyTo(OutputStream arg0) { throw new UnsupportedOperationException(); }
+                    public boolean copyTo(File arg0)      { throw new UnsupportedOperationException(); }
+                    public File getFile()                 { return f; }
+                    public long getLastModified()         { return f.lastModified(); }
+                    public int getMode()                  { throw new UnsupportedOperationException(); }
+                    public String getName()               { return f.getName(); }
+                    public String getPath()               { return relativePath.getPathString(); }
+                    public RelativePath getRelativePath() { return relativePath; }
+                    public long getSize()                 { return f.length(); }
+                    public boolean isDirectory()          { return f.isDirectory(); }
+                    public InputStream open()             { throw new UnsupportedOperationException(); }
+                });
             }
 
             if (fileCollection instanceof FileTree) {
