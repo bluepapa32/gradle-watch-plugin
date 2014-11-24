@@ -4,7 +4,7 @@ defaultTasks 'clean', 'build'
 // -----------------------------------------------------------------------------
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3' }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.6' }
 }
 
 
@@ -28,7 +28,7 @@ repositories {
 dependencies {
     compile     gradleApi()
     compile     localGroovy()
-    testCompile ('org.spockframework:spock-core:0.7-groovy-1.8') { exclude module: 'groovy-all' }
+    testCompile ('org.spockframework:spock-core:0.7-groovy-2.0') { exclude module: 'groovy-all' }
 }
 
 
@@ -122,7 +122,7 @@ publishing {
 // -----------------------------------------------------------------------------
 if (env.BINTRAY_API_KEY) {
 
-    apply plugin: 'bintray'
+    apply plugin: 'com.jfrog.bintray'
 
     bintray {
         user         = 'bluepapa32'
@@ -132,6 +132,9 @@ if (env.BINTRAY_API_KEY) {
             repo     = 'gradle-plugins'
             name     = 'gradle-watch-plugin'
             licenses = ['Apache-2.0']
+            version {
+                attributes = ['gradle-plugin': "com.bluepapa32.watch:${project.group}:${project.name}"]
+            }
         }
         dryRun = project.dryRun || snapshot
     }

@@ -8,7 +8,7 @@ class WatchPluginSpec extends GradlePluginSpecification {
 
     def "applies plugin"() {
         when:
-        apply plugin: 'watch'
+        apply plugin: 'com.bluepapa32.watch'
 
         then:
         tasks['watch'] instanceof WatchTask
@@ -16,7 +16,7 @@ class WatchPluginSpec extends GradlePluginSpecification {
 
     def "configures watch"() {
         setup:
-        apply plugin: 'watch'
+        apply plugin: 'com.bluepapa32.watch'
 
         when:
         watch {
