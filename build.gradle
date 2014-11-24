@@ -132,6 +132,9 @@ if (env.BINTRAY_API_KEY) {
             repo     = 'gradle-plugins'
             name     = 'gradle-watch-plugin'
             licenses = ['Apache-2.0']
+            version {
+                attributes = ['gradle-plugin': "com.bluepapa32.watch:${project.group}:${project.name}"]
+            }
         }
         dryRun = project.dryRun || snapshot
     }
