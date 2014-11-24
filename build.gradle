@@ -4,7 +4,7 @@ defaultTasks 'clean', 'build'
 // -----------------------------------------------------------------------------
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3' }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.6' }
 }
 
 
@@ -122,7 +122,7 @@ publishing {
 // -----------------------------------------------------------------------------
 if (env.BINTRAY_API_KEY) {
 
-    apply plugin: 'bintray'
+    apply plugin: 'com.jfrog.bintray'
 
     bintray {
         user         = 'bluepapa32'
