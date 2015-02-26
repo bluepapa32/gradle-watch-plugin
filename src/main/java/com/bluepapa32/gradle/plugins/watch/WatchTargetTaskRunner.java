@@ -82,7 +82,8 @@ public class WatchTargetTaskRunner implements AutoCloseable {
 
         BuildLauncher launcher = connection
                                     .newBuild()
-                                    .withArguments(arguments);
+                                    .withArguments(arguments)
+                                    .setStandardOutput(System.out);
 
         for (WatchTarget target : targets) {
             launcher.forTasks(target.getTasks().toArray(new String[0]));
