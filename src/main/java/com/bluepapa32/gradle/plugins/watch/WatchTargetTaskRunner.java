@@ -2,8 +2,14 @@ package com.bluepapa32.gradle.plugins.watch;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Map;
 
+import org.gradle.StartParameter;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.BuildException;
@@ -18,13 +24,25 @@ import static org.gradle.api.logging.LogLevel.INFO;
 
 public class WatchTargetTaskRunner implements AutoCloseable {
 
+    private static final Logger LOG = Logging.getLogger(WatchTargetTaskRunner.class);
+
+    private String[] arguments;
+
     private ProjectConnection connection;
 
     public WatchTargetTaskRunner(Project project) {
 
+        StartParameter parameter = project.getGradle().getStartParameter();
+
+        this.arguments = getArguments(parameter);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Arguments: {}", Arrays.toString(arguments));
+        }
+
         final PrintStream out = System.out;
 
-        LogLevel logLevel = project.getGradle().getStartParameter().getLogLevel();
+        LogLevel logLevel = parameter.getLogLevel();
         if (INFO.compareTo(logLevel) < 0) {
             System.setOut(new DevNullPrintStream());
         }
@@ -62,7 +80,9 @@ public class WatchTargetTaskRunner implements AutoCloseable {
             return;
         }
 
-        BuildLauncher launcher = connection.newBuild();
+        BuildLauncher launcher = connection
+                                    .newBuild()
+                                    .withArguments(arguments);
 
         for (WatchTarget target : targets) {
             launcher.forTasks(target.getTasks().toArray(new String[0]));
@@ -96,4 +116,13 @@ public class WatchTargetTaskRunner implements AutoCloseable {
     public void close() {
         connection.close();
     }
+
+    private String[] getArguments(StartParameter parameter) {
+        List<String> args = new ArrayList<>();
+        for (Map.Entry<String, String> e : parameter.getProjectProperties().entrySet()) {
+            args.add("-P" + e.getKey() + "=" + e.getValue());
+        }
+        return args.toArray(new String[args.size()]);
+    }
+
 }
